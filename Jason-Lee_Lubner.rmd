@@ -1,0 +1,209 @@
+---
+title: 'Pre-programme Assignment 1'
+author: "Jason-Lee Lubner"
+date: "12/08/2020"
+output:
+  html_document:
+    highlight: zenburn
+    theme: flatly
+    toc: yes
+    toc_float: yes
+  word_document:
+    toc: yes
+---
+
+
+```{r load-libraries, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(gapminder)  # gapminder dataset
+library(here)
+```
+
+
+
+# Task 1: Short biography written using markdown
+
+## **Biography of Jason Lubner**
+
+![](/Users/jasonleelubner/Desktop/Screenshot 2020-08-03 at 20.13.44.png)
+
+***
+  
+I am currently pursuing my master's degree at [**London Business School**](<https://www.london.edu>) in Analytics and Management. I was born on the 9th of February 1996 in Johannesburg, South Africa. During my primary school years; I was an active participant in sports throughout and was awarded the *Victor ludorum* for swimming. My interests oriented toward more academic, cultural and intellectual pursuits during my high school years. I received honors for my many years involved in representing my school in public speaking team, where I participated in both group and individual impromptu speaking competitions.
+
+Another important part of my life has been and continues to be my involvement with philanthropy and community development, where I engage in both family as well as my own personal philanthropic initiatives. I have worked with:
+    1.) the [Smile Foundation](https://smilefoundationsa.org/) assisting underprivileged children with facial abnormalities to receive the surgery they need. 
+    2.) I too have worked with [Afrika Tikkun](https://afrikatikkun.org/) helping to enable hundreds of township children to access nutrition, educational support and career direction.  I was elected during my high school career as a board member of my school’s community outreach committee. Our team initiated many programs but one of our major focus was a weekend Soweto Mathematics tutoring program.
+    3.) In 2019 I volunteered with [GVI](https://www.gviafrica.co.za/) in the Seychelles researching baseline data into the health of local ecosystems.
+
+
+In  high school I was acknowledged for my achievements in academic, cultural, and charitable pursuits by awarding me the school’s highest honor; the white honors blazer. Simultaneously my peers elected me along side 20 other senior student to represent the school as an executive prefect for 2014.
+
+Having grown up in a family who have founded and manage their own businesses as well as a number of charitable organisations, I have always been inspired by their entrepreneurial spirit. However, I also sought out academic and professional experiences that would allow me to develop a more analytical approach to business management. I initially undertook *Actuarial Science* at the [**University of Cape Town**](http://www.uct.ac.za/), in 2015,  before seeking out greater academic challenges at [**The London School of Economics and Political Science**](https://www.lse.ac.uk/), where I greaduated with a first class honours *Bsc. in Mathematics,Statistics and Business*, in 2019. 
+
+I have also  undertaken internships in different areas of business and finance; including a placement in wealth management and financial investments at [**Stonehage Flemming**](https://www.stonehagefleming.com/) in 2016 and in private banking at [**Bank J. Saffra Sarasin**](https://www.jsafrasarasin.com/),in 2020.
+
+
+# Task 2: `gapminder` country comparison
+
+You have seen the `gapminder` dataset that has data on life expectancy, population, and GDP per capita for 142 countries from 1952 to 2007. To get a glipmse of the dataframe, namely to see the variable names, variable types, etc., we use the `glimpse` function. We also want to have a look at the first 20 rows of data.
+
+```{r}
+glimpse(gapminder)
+
+head(gapminder, 20) # look at the first 20 rows of the dataframe
+
+```
+
+Your task is to produce two graphs of how life expectancy has changed over the years for the `country` and the `continent` you come from. 
+
+I have created the `country_data` and `continent_data` with the code below. 
+
+```{r}
+country_data <- gapminder %>% 
+            filter(country == "South Africa") 
+
+continent_data <- gapminder %>% 
+            filter(continent == "Africa")
+```
+
+First, create a plot of life expectancy over time for the single country you chose. You should use  `geom_point()` to see the actual data points and `geom_smooth(se = FALSE)`  to plot the underlying trendlines. You need to remove the comments **#** from the lines below for your code to run.
+
+```{r, lifeExp_one_country}
+plot1 <- ggplot(data = country_data, mapping = aes(x = year, y = lifeExp))+
+   geom_point() +
+   geom_smooth(se = FALSE)+
+   NULL 
+
+ plot1
+```
+
+
+```{r, lifeExp_one_country_with_label}
+plot1<- ggplot(data = country_data, mapping = aes(x = year, y = lifeExp))+
+   geom_point() +
+   geom_smooth(se = FALSE) +
+   labs(title = "Life Expectancy in South Africa over time ",
+         x = "Year ",
+         y = "Life Expectancy") +
+      NULL
+
+
+ print(plot1)
+```
+
+
+Secondly, we produce a plot for all countries in the African Continent
+
+```{r lifeExp_one_continent}
+ggplot(data = continent_data , mapping = aes(x = year , y = lifeExp  , colour= country ))+
+  geom_point() + 
+  geom_smooth(se = FALSE) +
+   NULL
+```
+
+Finally, using the original `gapminder` data, produce a life expectancy over time graph, grouped (or faceted) by continent. We will remove all legends, adding the `theme(legend.position="none")` in the end of our ggplot.
+
+```{r lifeExp_facet_by_continent}
+ggplot(data = gapminder , mapping = aes(x = year , y = lifeExp  , colour=country ))+
+   geom_point() + 
+   geom_smooth(se = FALSE) +
+   facet_wrap(~continent) +
+   theme(legend.position="none") + #remove all legends
+  NULL
+```
+
+Given these trends, what can you say about life expectancy since 1952? Again, don't just say what's happening in the graph. Tell some sort of story and speculate about the differences in the patterns.
+
+> Type your answer after this blockquote.
+
+When analyzing plot1 its is interesting to note the increase in Life Expectancy from 1952 until 1992 before decreasing again to one of its lowest points in in 50 years in 2007. It is important to firstly note the political climate in South Africa from 1950-1990 this 40 year period was under the apartheid legislation whereby black people were officially restricted  to approximately 13 percent of the land(known as homelands), Africans were gradually assigned to live in these homelands, then called Bantustans. As the first four homelands were granted nominal independence in the 1970s and the early 1980s, their residents and others assigned to live there were excluded from the official census of South Africa.
+
+Another problem with census measurements was that many black South Africans lived in informal settlements, or "squatter camps," close to cities where they worked or hoped to work, and squatters were often omitted from census counts. In addition, although all citizens were legally required to register births, deaths, marriages, and divorces, many people--especially urban blacks--avoided doing so, in part because of the stringency and complexity of the laws governing legal residency. Thus although is might be surprising to see a drop in life expectancy in South Africa with advancements in medicine,health-care and the liberation from apartheid in 1994, the data itself may be innacurate due to the political climate excluding a large portion of the popolation from theses censuses and thus post 1994 data might be a more accurate reflection of the trends. The downward trend in Life Expecatancy of South Africa post 1994 is consistent with the increases in unemployment and poverty across South Africa as well as the rise of HIV,Tuberculosis (TB) and diabetes which still plagues many South Africans who do not have adequate access to education and heathcare facilities that would raise life expectancy. 
+
+If we take a macro-view of the continental data. one can notice a general increasing trend in life expectancy across most countries however there is evidence to suggest many countries life expectancy decreased or fluctated a lot post 1952. This period, roughly corresponds to the post-colonial era in many countries in Africa, in which large economic and social changes occurred."Some of these changes were beneficial to the health of the population (such as economic growth,increasing access to health-care, improvements in child survival, and expanded access to antiretrovirals for treatment of HIV), whereas others are associated with increasing exposure to risk factors that lead to increased morbidity and mortality (such as increasing exposure to risks for noncommunicable diseases or the spread of new and reemerging communicable diseases)."(https://www.ncbi.nlm.nih.gov/books/NBK2292/)
+We can see Reunion has maintained generally high levels of life expecatcny in comparision to its feloow African countries, this may be due to the fact reunion is a small island off the coast of africa and might not have been affected by health pandemics to the same extent as inland countries and "administratively, Réunion is one of the overseas departments of France. Like the other four overseas departments, it is also one of the 18 regions of France, with the modified status of overseas region, and an integral part of the republic with the same status as Metropolitan France."(https://en.wikipedia.org/wiki/R%C3%A9union). Thus reunion would to a large extent receive the same level of health-care and technology as its European familial. While is we to compare Somalia a country with still one of the lowest global life expectancys this could be accredited to Somalia scoring very low for most humanitarian indicators, suffering from poor governance, protracted internal conflict, underdevelopment, economic decline, poverty, social and gender inequality, and environmental degradation which has stunted life expectancy within the country. A more in depth analysis into each countries political, economic and social history should be able to describe individual countries trends such as South Africa in plot1.
+
+Finally when analyzing continents  on a global perspective. We can see a clear increase in life expectancy across the globe-This could be accredited to the general advancements in technology, healthcare, security(physical and food) and access to infomation- with the most significant increases in Asia and Africa. This were previously very colonised areas and only gained both their political and economic freedom towards the end of the 20th century. The large increase across Asia regions in particular could be to to the rise of the of asias economic significance and high growth rates towards the end of the 20th century. However, these continetns also retain countries with the lowest life expectancy and thus it is evident there are much higher levels of inequality between countries in these contintents than in comparison to contiental Europe which has has had a somewhat equal increse in life expectancy since 1952.
+
+It is also evident to see that there is still a clear divide between  developed and developing countries and the effects it has on life expectancy, its clear that Europe,Oceania and a large position of the Americas which inherit a developed status have much higher life expecatncy than countries in the developing world and thus economic and humanitarian factors are both big influencers of Life Expectancy.
+
+# Task 3: Brexit voting
+
+We will have a quick look at the results of the 2016 Brexit vote in the UK. First we read the data using `read_csv()` and have a quick glimpse at the data
+
+```{r load_brexit_data, warning=FALSE, message=FALSE}
+brexit_results <- read_csv(here::here("Data","brexit_results.csv"))
+
+
+glimpse(brexit_results)
+```
+
+
+The data comes from [Elliott Morris](https://www.thecrosstab.com/), who cleaned it and made it available through his [DataCamp class on analysing election and polling data in R](https://www.datacamp.com/courses/analyzing-election-and-polling-data-in-r).
+
+Our main outcome variable (or y) is `leave_share`, which is the percent of votes cast in favour of Brexit, or leaving the EU. Each row is a UK [parliament constituency](https://en.wikipedia.org/wiki/United_Kingdom_Parliament_constituencies). 
+
+To get a sense of the spread of the data, plot a histogram and a density plot of the leave share in all constituencies.
+
+```{r brexit_histogram, warning=FALSE, message=FALSE}
+ggplot(brexit_results, aes(x = leave_share)) +
+  geom_histogram(binwidth = 2.5)+
+  labs(title = "Percent of votes cast in favour of Brexit amongst UK constituencies",
+       x="Percent of votes cast in favour of Brexit",
+       y="UK constituencies")
+
+ggplot(brexit_results, aes(x = leave_share)) +
+  geom_density()+
+  labs(title = "Density function of votes cast in favour of Brexit amongst UK constituencies",
+       x="Percent of votes cast in favour of Brexit",
+       y="UK constituencies")
+  
+
+
+```
+
+One common explanation for the Brexit outcome was fear of immigration and opposition to the EU's more open border policy. We can check the relationship (or correlation) between the proportion of native born residents (`born_in_uk`) in a constituency and its `leave_share`. To do this, let us get the correlation between the two variables
+
+```{r brexit_immigration_correlation}
+brexit_results %>% 
+  select(leave_share, born_in_uk) %>% 
+  cor()
+```
+
+The correlation is almost 0.5, which shows that the two variables are positively correlated. 
+
+We can also create a scatterplot between these two variables using `geom_point`. We also add the best fit line, using  `geom_smooth(method = "lm")`. 
+
+```{r brexit_immigration_plot}
+ggplot(brexit_results, aes(x = born_in_uk, y = leave_share)) +
+  geom_point(alpha=0.3) +
+  geom_smooth(method = "lm") +
+  theme_bw() +
+   labs(title = "Line of best-fit between percentage leave share voters and percentage of UK born individual in each constituency ",
+       x="Percent of UK born individuals in each constituency",
+       y="Percentage of leave share voters")
+  
+  NULL
+```
+
+You have the code for the plots, I would like you to revisit all of them and use the `labs()` function to add an informative title, subtitle, and axes titles to all plots.
+
+What can you say about the relationship shown above? Again, don't just say what's happening in the graph. Tell some sort of story and speculate about the differences in the patterns.
+
+> Type your answer after, and outside, this blockquote.
+
+The histogram and density function seem to give an indication that the data is left(negatively) skewed, this means the mean is typically less than the median, and the large tail to the left indicates that a there is typically a large portion of outliers which had a smaller percentage of leave share voters. The median seems to sit at round the 57/58% mark which indicates that over 50% of voters were in a majority favor of voting for brexit. The kurtosis/Peak (although I have not calculated it) also seems to be fairly high( higher than a normal distribution) this results is a heavier tailed distribution with more outliers. this indicates the percetage of leave share voters does not really follow a normal distribution. These results indicate that a large number of outliers actually voted to remain and this is what could have been reflected in opion polls which predicted a remain vote. the results also show that the percantge of leave share voters tends to focus around the 56-58% range which is not much of a clear majority. 
+
+When analyzing the correlation and line of best fit/ regression  line between leave share voters and percentage of UK born individual in each constituency it is clear to see there is a slight positive correlation and that being a Uk born resident is a factor that may have determined the a leave vote. The are a variety of reason that could explain this correlation:
+
+
+1.) This is could be due to  misconception of foreigners taking jobs when in fact majority of foreigners either take low skilled or are hired on high skill merit, making the assumption that foreigners are "taking" jobs from nationals. 
+
+2.) Increased violent crime in the UK being as well as  xenophobia towards Syrian refugees and EU   consensus.
+
+3.)"Academics James Dennison and Noah Carl argue that "the most important phenomenon to be explained vis-à-vis the referendum result in our view is that a sizable Eurosceptic faction has remained extant in Britain over the last four decades". Using data from the Eurobarometer survey they showed that fewer Britons considered themselves European than any other EU nationality. Furthermore, they show that British trading patterns, capital flows and emigration patterns were the least Europeanised of any EU member state"(https://en.wikipedia.org/wiki/Causes_of_the_vote_in_favour_of_Brexit#Demographic_and_cultural_factors). This could explain the correlation between UK nationals voting in favor of Brexit as they felt less incorporated in the EU to begin with and thus were less inclined to remain. 
+
+The are a number of other reasons that could explain this positive correlation, however it is more likely that the leave vote was not only determined by the UK national percentage but a number of other factors such as age,ethnicity and income brackets which determine the percentage of leave votes. A further regression analysis would be required to determine this.
+
+
