@@ -127,7 +127,7 @@ It is also evident to see that there is still a clear divide between  developed 
 We will have a quick look at the results of the 2016 Brexit vote in the UK. First we read the data using `read_csv()` and have a quick glimpse at the data
 
 ```{r load_brexit_data, warning=FALSE, message=FALSE}
-brexit_results <- read_csv(here::here("Data","brexit_results.csv"))
+brexit_results <- read_csv(here::here("data","brexit_results.csv"))
 
 
 glimpse(brexit_results)
