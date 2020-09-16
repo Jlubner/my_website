@@ -1,0 +1,304 @@
+<!DOCTYPE HTML>
+<html>
+
+    <head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="description" content="A South African LBS MAM2021 student, with a passion for data science">
+	<meta name="author" content="Jason-Lee Lubner">
+	<meta name="generator" content="Hugo 0.74.3" />
+	<title>Pre-programme Assignment 1 &middot; Jason-Lee Lubner&#39;s Portfolio</title>
+	<!-- Stylesheets -->
+	
+	<link rel="stylesheet" href="/css/main.css"/>
+	
+	
+
+	
+
+	<!-- Custom Fonts -->
+	<link href="/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+	
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="js/ie/html5shiv.js"></script>
+	<script src="js/ie/html5shiv.jsrespond.min.js"></script>
+	<![endif]-->
+</head>
+
+    <body>
+
+    <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Header -->
+    <header id="header" class="alt">
+        <a href="/" class="logo"><strong>Jason-Lee Lubner</strong> <span></span></a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+
+<!-- Menu -->
+    <nav id="menu">
+        <ul class="links">
+            
+                <li><a href="/">Home</a></li>
+            
+                <li><a href="/blogs">Blogs</a></li>
+            
+                <li><a href="/"></a></li>
+            
+                <li><a href="/"></a></li>
+            
+
+        </ul>
+        <ul class="actions vertical">
+            
+                <li><a href="/blogs" class="button special fit">Get Started</a></li>
+            
+            
+                <li><a href="/" class="button fit">Log In</a></li>
+            
+        </ul>
+    </nav>
+
+        <!-- Main -->
+            <div id="main" class="alt">
+
+                
+                    <section id="one">
+                        <div class="inner">
+                            <header class="major">
+                                <h1>Pre-programme Assignment 1</h1>
+                            </header>
+                            
+                            
+
+
+<div id="biography-of-jason-lubner" class="section level2">
+<h2><strong>Biography of Jason Lubner</strong></h2>
+<p><img src="/Users/jasonleelubner/Desktop/Screenshot%202020-08-03%20at%2020.13.44.png" /></p>
+<hr />
+<p>I am currently pursuing my master’s degree at <a href="https://www.london.edu"><strong>London Business School</strong></a> in Analytics and Management. I was born on the 9th of February 1996 in Johannesburg, South Africa. During my primary school years; I was an active participant in sports throughout and was awarded the <em>Victor ludorum</em> for swimming. My interests oriented toward more academic, cultural and intellectual pursuits during my high school years. I received honors for my many years involved in representing my school in public speaking team, where I participated in both group and individual impromptu speaking competitions.</p>
+<p>Another important part of my life has been and continues to be my involvement with philanthropy and community development, where I engage in both family as well as my own personal philanthropic initiatives. I have worked with:
+1.) the <a href="https://smilefoundationsa.org/">Smile Foundation</a> assisting underprivileged children with facial abnormalities to receive the surgery they need.
+2.) I too have worked with <a href="https://afrikatikkun.org/">Afrika Tikkun</a> helping to enable hundreds of township children to access nutrition, educational support and career direction. I was elected during my high school career as a board member of my school’s community outreach committee. Our team initiated many programs but one of our major focus was a weekend Soweto Mathematics tutoring program.
+3.) In 2019 I volunteered with <a href="https://www.gviafrica.co.za/">GVI</a> in the Seychelles researching baseline data into the health of local ecosystems.</p>
+<p>In high school I was acknowledged for my achievements in academic, cultural, and charitable pursuits by awarding me the school’s highest honor; the white honors blazer. Simultaneously my peers elected me along side 20 other senior student to represent the school as an executive prefect for 2014.</p>
+<p>Having grown up in a family who have founded and manage their own businesses as well as a number of charitable organisations, I have always been inspired by their entrepreneurial spirit. However, I also sought out academic and professional experiences that would allow me to develop a more analytical approach to business management. I initially undertook <em>Actuarial Science</em> at the <a href="http://www.uct.ac.za/"><strong>University of Cape Town</strong></a>, in 2015, before seeking out greater academic challenges at <a href="https://www.lse.ac.uk/"><strong>The London School of Economics and Political Science</strong></a>, where I greaduated with a first class honours <em>Bsc. in Mathematics,Statistics and Business</em>, in 2019.</p>
+<p>I have also undertaken internships in different areas of business and finance; including a placement in wealth management and financial investments at <a href="https://www.stonehagefleming.com/"><strong>Stonehage Flemming</strong></a> in 2016 and in private banking at <a href="https://www.jsafrasarasin.com/"><strong>Bank J. Saffra Sarasin</strong></a>,in 2020.</p>
+</div>
+<div id="task-2-gapminder-country-comparison" class="section level1">
+<h1>Task 2: <code>gapminder</code> country comparison</h1>
+<p>You have seen the <code>gapminder</code> dataset that has data on life expectancy, population, and GDP per capita for 142 countries from 1952 to 2007. To get a glipmse of the dataframe, namely to see the variable names, variable types, etc., we use the <code>glimpse</code> function. We also want to have a look at the first 20 rows of data.</p>
+<pre class="r"><code>glimpse(gapminder)</code></pre>
+<pre><code>## Rows: 1,704
+## Columns: 6
+## $ country   &lt;fct&gt; Afghanistan, Afghanistan, Afghanistan, Afghanistan, Afghani…
+## $ continent &lt;fct&gt; Asia, Asia, Asia, Asia, Asia, Asia, Asia, Asia, Asia, Asia,…
+## $ year      &lt;int&gt; 1952, 1957, 1962, 1967, 1972, 1977, 1982, 1987, 1992, 1997,…
+## $ lifeExp   &lt;dbl&gt; 28.801, 30.332, 31.997, 34.020, 36.088, 38.438, 39.854, 40.…
+## $ pop       &lt;int&gt; 8425333, 9240934, 10267083, 11537966, 13079460, 14880372, 1…
+## $ gdpPercap &lt;dbl&gt; 779.4453, 820.8530, 853.1007, 836.1971, 739.9811, 786.1134,…</code></pre>
+<pre class="r"><code>head(gapminder, 20) # look at the first 20 rows of the dataframe</code></pre>
+<pre><code>## # A tibble: 20 x 6
+##    country     continent  year lifeExp      pop gdpPercap
+##    &lt;fct&gt;       &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt;
+##  1 Afghanistan Asia       1952    28.8  8425333      779.
+##  2 Afghanistan Asia       1957    30.3  9240934      821.
+##  3 Afghanistan Asia       1962    32.0 10267083      853.
+##  4 Afghanistan Asia       1967    34.0 11537966      836.
+##  5 Afghanistan Asia       1972    36.1 13079460      740.
+##  6 Afghanistan Asia       1977    38.4 14880372      786.
+##  7 Afghanistan Asia       1982    39.9 12881816      978.
+##  8 Afghanistan Asia       1987    40.8 13867957      852.
+##  9 Afghanistan Asia       1992    41.7 16317921      649.
+## 10 Afghanistan Asia       1997    41.8 22227415      635.
+## 11 Afghanistan Asia       2002    42.1 25268405      727.
+## 12 Afghanistan Asia       2007    43.8 31889923      975.
+## 13 Albania     Europe     1952    55.2  1282697     1601.
+## 14 Albania     Europe     1957    59.3  1476505     1942.
+## 15 Albania     Europe     1962    64.8  1728137     2313.
+## 16 Albania     Europe     1967    66.2  1984060     2760.
+## 17 Albania     Europe     1972    67.7  2263554     3313.
+## 18 Albania     Europe     1977    68.9  2509048     3533.
+## 19 Albania     Europe     1982    70.4  2780097     3631.
+## 20 Albania     Europe     1987    72    3075321     3739.</code></pre>
+<p>Your task is to produce two graphs of how life expectancy has changed over the years for the <code>country</code> and the <code>continent</code> you come from.</p>
+<p>I have created the <code>country_data</code> and <code>continent_data</code> with the code below.</p>
+<pre class="r"><code>country_data &lt;- gapminder %&gt;% 
+            filter(country == &quot;South Africa&quot;) 
+
+continent_data &lt;- gapminder %&gt;% 
+            filter(continent == &quot;Africa&quot;)</code></pre>
+<p>First, create a plot of life expectancy over time for the single country you chose. You should use <code>geom_point()</code> to see the actual data points and <code>geom_smooth(se = FALSE)</code> to plot the underlying trendlines. You need to remove the comments <strong>#</strong> from the lines below for your code to run.</p>
+<pre class="r"><code>plot1 &lt;- ggplot(data = country_data, mapping = aes(x = year, y = lifeExp))+
+   geom_point() +
+   geom_smooth(se = FALSE)+
+   NULL 
+
+ plot1</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/blogs/Jason-Lee_Lubner_files/figure-html/lifeExp_one_country-1.png" width="672" /></p>
+<pre class="r"><code>plot1&lt;- ggplot(data = country_data, mapping = aes(x = year, y = lifeExp))+
+   geom_point() +
+   geom_smooth(se = FALSE) +
+   labs(title = &quot;Life Expectancy in South Africa over time &quot;,
+         x = &quot;Year &quot;,
+         y = &quot;Life Expectancy&quot;) +
+      NULL
+
+
+ print(plot1)</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/blogs/Jason-Lee_Lubner_files/figure-html/lifeExp_one_country_with_label-1.png" width="672" /></p>
+<p>Secondly, we produce a plot for all countries in the African Continent</p>
+<pre class="r"><code>ggplot(data = continent_data , mapping = aes(x = year , y = lifeExp  , colour= country ))+
+  geom_point() + 
+  geom_smooth(se = FALSE) +
+   NULL</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/blogs/Jason-Lee_Lubner_files/figure-html/lifeExp_one_continent-1.png" width="672" /></p>
+<p>Finally, using the original <code>gapminder</code> data, produce a life expectancy over time graph, grouped (or faceted) by continent. We will remove all legends, adding the <code>theme(legend.position="none")</code> in the end of our ggplot.</p>
+<pre class="r"><code>ggplot(data = gapminder , mapping = aes(x = year , y = lifeExp  , colour=country ))+
+   geom_point() + 
+   geom_smooth(se = FALSE) +
+   facet_wrap(~continent) +
+   theme(legend.position=&quot;none&quot;) + #remove all legends
+  NULL</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/blogs/Jason-Lee_Lubner_files/figure-html/lifeExp_facet_by_continent-1.png" width="672" /></p>
+<p>When analyzing plot1 its is interesting to note the increase in Life Expectancy from 1952 until 1992 before decreasing again to one of its lowest points in in 50 years in 2007. It is important to firstly note the political climate in South Africa from 1950-1990 this 40 year period was under the apartheid legislation whereby black people were officially restricted to approximately 13 percent of the land(known as homelands), Africans were gradually assigned to live in these homelands, then called Bantustans. As the first four homelands were granted nominal independence in the 1970s and the early 1980s, their residents and others assigned to live there were excluded from the official census of South Africa.</p>
+<p>Another problem with census measurements was that many black South Africans lived in informal settlements, or “squatter camps,” close to cities where they worked or hoped to work, and squatters were often omitted from census counts. In addition, although all citizens were legally required to register births, deaths, marriages, and divorces, many people–especially urban blacks–avoided doing so, in part because of the stringency and complexity of the laws governing legal residency. Thus although is might be surprising to see a drop in life expectancy in South Africa with advancements in medicine,health-care and the liberation from apartheid in 1994, the data itself may be innacurate due to the political climate excluding a large portion of the popolation from theses censuses and thus post 1994 data might be a more accurate reflection of the trends. The downward trend in Life Expecatancy of South Africa post 1994 is consistent with the increases in unemployment and poverty across South Africa as well as the rise of HIV,Tuberculosis (TB) and diabetes which still plagues many South Africans who do not have adequate access to education and heathcare facilities that would raise life expectancy.</p>
+<p>If we take a macro-view of the continental data. one can notice a general increasing trend in life expectancy across most countries however there is evidence to suggest many countries life expectancy decreased or fluctated a lot post 1952. This period, roughly corresponds to the post-colonial era in many countries in Africa, in which large economic and social changes occurred.“Some of these changes were beneficial to the health of the population (such as economic growth,increasing access to health-care, improvements in child survival, and expanded access to antiretrovirals for treatment of HIV), whereas others are associated with increasing exposure to risk factors that lead to increased morbidity and mortality (such as increasing exposure to risks for noncommunicable diseases or the spread of new and reemerging communicable diseases).”(<a href="https://www.ncbi.nlm.nih.gov/books/NBK2292/" class="uri">https://www.ncbi.nlm.nih.gov/books/NBK2292/</a>)
+We can see Reunion has maintained generally high levels of life expecatcny in comparision to its feloow African countries, this may be due to the fact reunion is a small island off the coast of africa and might not have been affected by health pandemics to the same extent as inland countries and “administratively, Réunion is one of the overseas departments of France. Like the other four overseas departments, it is also one of the 18 regions of France, with the modified status of overseas region, and an integral part of the republic with the same status as Metropolitan France.”(<a href="https://en.wikipedia.org/wiki/R%C3%A9union" class="uri">https://en.wikipedia.org/wiki/R%C3%A9union</a>). Thus reunion would to a large extent receive the same level of health-care and technology as its European familial. While is we to compare Somalia a country with still one of the lowest global life expectancys this could be accredited to Somalia scoring very low for most humanitarian indicators, suffering from poor governance, protracted internal conflict, underdevelopment, economic decline, poverty, social and gender inequality, and environmental degradation which has stunted life expectancy within the country. A more in depth analysis into each countries political, economic and social history should be able to describe individual countries trends such as South Africa in plot1.</p>
+<p>Finally when analyzing continents on a global perspective. We can see a clear increase in life expectancy across the globe-This could be accredited to the general advancements in technology, healthcare, security(physical and food) and access to infomation- with the most significant increases in Asia and Africa. This were previously very colonised areas and only gained both their political and economic freedom towards the end of the 20th century. The large increase across Asia regions in particular could be to to the rise of the of asias economic significance and high growth rates towards the end of the 20th century. However, these continetns also retain countries with the lowest life expectancy and thus it is evident there are much higher levels of inequality between countries in these contintents than in comparison to contiental Europe which has has had a somewhat equal increse in life expectancy since 1952.</p>
+<p>It is also evident to see that there is still a clear divide between developed and developing countries and the effects it has on life expectancy, its clear that Europe,Oceania and a large position of the Americas which inherit a developed status have much higher life expecatncy than countries in the developing world and thus economic and humanitarian factors are both big influencers of Life Expectancy.</p>
+</div>
+<div id="task-3-brexit-voting" class="section level1">
+<h1>Task 3: Brexit voting</h1>
+<p>We will have a quick look at the results of the 2016 Brexit vote in the UK. First we read the data using <code>read_csv()</code> and have a quick glimpse at the data</p>
+<pre class="r"><code>brexit_results &lt;- read_csv(here::here(&quot;data&quot;,&quot;brexit_results.csv&quot;))
+
+
+glimpse(brexit_results)</code></pre>
+<pre><code>## Rows: 632
+## Columns: 11
+## $ Seat        &lt;chr&gt; &quot;Aldershot&quot;, &quot;Aldridge-Brownhills&quot;, &quot;Altrincham and Sale …
+## $ con_2015    &lt;dbl&gt; 50.592, 52.050, 52.994, 43.979, 60.788, 22.418, 52.454, 2…
+## $ lab_2015    &lt;dbl&gt; 18.333, 22.369, 26.686, 34.781, 11.197, 41.022, 18.441, 4…
+## $ ld_2015     &lt;dbl&gt; 8.824, 3.367, 8.383, 2.975, 7.192, 14.828, 5.984, 2.423, …
+## $ ukip_2015   &lt;dbl&gt; 17.867, 19.624, 8.011, 15.887, 14.438, 21.409, 18.821, 21…
+## $ leave_share &lt;dbl&gt; 57.89777, 67.79635, 38.58780, 65.29912, 49.70111, 70.4728…
+## $ born_in_uk  &lt;dbl&gt; 83.10464, 96.12207, 90.48566, 97.30437, 93.33793, 96.9621…
+## $ male        &lt;dbl&gt; 49.89896, 48.92951, 48.90621, 49.21657, 48.00189, 49.1718…
+## $ unemployed  &lt;dbl&gt; 3.637000, 4.553607, 3.039963, 4.261173, 2.468100, 4.74273…
+## $ degree      &lt;dbl&gt; 13.870661, 9.974114, 28.600135, 9.336294, 18.775591, 6.08…
+## $ age_18to24  &lt;dbl&gt; 9.406093, 7.325850, 6.437453, 7.747801, 5.734730, 8.20986…</code></pre>
+<p>The data comes from <a href="https://www.thecrosstab.com/">Elliott Morris</a>, who cleaned it and made it available through his <a href="https://www.datacamp.com/courses/analyzing-election-and-polling-data-in-r">DataCamp class on analysing election and polling data in R</a>.</p>
+<p>Our main outcome variable (or y) is <code>leave_share</code>, which is the percent of votes cast in favour of Brexit, or leaving the EU. Each row is a UK <a href="https://en.wikipedia.org/wiki/United_Kingdom_Parliament_constituencies">parliament constituency</a>.</p>
+<p>To get a sense of the spread of the data, plot a histogram and a density plot of the leave share in all constituencies.</p>
+<pre class="r"><code>ggplot(brexit_results, aes(x = leave_share)) +
+  geom_histogram(binwidth = 2.5)+
+  labs(title = &quot;Percent of votes cast in favour of Brexit amongst UK constituencies&quot;,
+       x=&quot;Percent of votes cast in favour of Brexit&quot;,
+       y=&quot;UK constituencies&quot;)</code></pre>
+<p><img src="/blogs/Jason-Lee_Lubner_files/figure-html/brexit_histogram-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(brexit_results, aes(x = leave_share)) +
+  geom_density()+
+  labs(title = &quot;Density function of votes cast in favour of Brexit amongst UK constituencies&quot;,
+       x=&quot;Percent of votes cast in favour of Brexit&quot;,
+       y=&quot;UK constituencies&quot;)</code></pre>
+<p><img src="/blogs/Jason-Lee_Lubner_files/figure-html/brexit_histogram-2.png" width="672" /></p>
+<p>One common explanation for the Brexit outcome was fear of immigration and opposition to the EU’s more open border policy. We can check the relationship (or correlation) between the proportion of native born residents (<code>born_in_uk</code>) in a constituency and its <code>leave_share</code>. To do this, let us get the correlation between the two variables</p>
+<pre class="r"><code>brexit_results %&gt;% 
+  select(leave_share, born_in_uk) %&gt;% 
+  cor()</code></pre>
+<pre><code>##             leave_share born_in_uk
+## leave_share   1.0000000  0.4934295
+## born_in_uk    0.4934295  1.0000000</code></pre>
+<p>The correlation is almost 0.5, which shows that the two variables are positively correlated.</p>
+<p>We can also create a scatterplot between these two variables using <code>geom_point</code>. We also add the best fit line, using <code>geom_smooth(method = "lm")</code>.</p>
+<pre class="r"><code>ggplot(brexit_results, aes(x = born_in_uk, y = leave_share)) +
+  geom_point(alpha=0.3) +
+  geom_smooth(method = &quot;lm&quot;) +
+  theme_bw() +
+   labs(title = &quot;Line of best-fit between percentage leave share voters and percentage of UK born individual in each constituency &quot;,
+       x=&quot;Percent of UK born individuals in each constituency&quot;,
+       y=&quot;Percentage of leave share voters&quot;)</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/blogs/Jason-Lee_Lubner_files/figure-html/brexit_immigration_plot-1.png" width="672" /></p>
+<pre class="r"><code>  NULL</code></pre>
+<pre><code>## NULL</code></pre>
+<p>The histogram and density function seem to give an indication that the data is left(negatively) skewed, this means the mean is typically less than the median, and the large tail to the left indicates that a there is typically a large portion of outliers which had a smaller percentage of leave share voters. The median seems to sit at round the 57/58% mark which indicates that over 50% of voters were in a majority favor of voting for brexit. The kurtosis/Peak (although I have not calculated it) also seems to be fairly high( higher than a normal distribution) this results is a heavier tailed distribution with more outliers. this indicates the percetage of leave share voters does not really follow a normal distribution. These results indicate that a large number of outliers actually voted to remain and this is what could have been reflected in opion polls which predicted a remain vote. the results also show that the percantge of leave share voters tends to focus around the 56-58% range which is not much of a clear majority.</p>
+<p>When analyzing the correlation and line of best fit/ regression line between leave share voters and percentage of UK born individual in each constituency it is clear to see there is a slight positive correlation and that being a Uk born resident is a factor that may have determined the a leave vote. The are a variety of reason that could explain this correlation:</p>
+<p>1.) This is could be due to misconception of foreigners taking jobs when in fact majority of foreigners either take low skilled or are hired on high skill merit, making the assumption that foreigners are “taking” jobs from nationals.</p>
+<p>2.) Increased violent crime in the UK being as well as xenophobia towards Syrian refugees and EU consensus.</p>
+<p>3.)“Academics James Dennison and Noah Carl argue that”the most important phenomenon to be explained vis-à-vis the referendum result in our view is that a sizable Eurosceptic faction has remained extant in Britain over the last four decades“. Using data from the Eurobarometer survey they showed that fewer Britons considered themselves European than any other EU nationality. Furthermore, they show that British trading patterns, capital flows and emigration patterns were the least Europeanised of any EU member state”(<a href="https://en.wikipedia.org/wiki/Causes_of_the_vote_in_favour_of_Brexit#Demographic_and_cultural_factors" class="uri">https://en.wikipedia.org/wiki/Causes_of_the_vote_in_favour_of_Brexit#Demographic_and_cultural_factors</a>). This could explain the correlation between UK nationals voting in favor of Brexit as they felt less incorporated in the EU to begin with and thus were less inclined to remain.</p>
+<p>The are a number of other reasons that could explain this positive correlation, however it is more likely that the leave vote was not only determined by the UK national percentage but a number of other factors such as age,ethnicity and income brackets which determine the percentage of leave votes. A further regression analysis would be required to determine this.</p>
+</div>
+
+                        </div>
+                    </section>
+            <!-- Disqus Inject -->
+                
+            </div>
+            
+        <!-- Footer -->
+            
+                <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <ul class="icons">
+                
+                    <li><a href="https://www.twitter.com" class="icon alt fa-twitter" target="_blank"><span class="label">Twitter</span></a></li>
+                
+                    <li><a href="https://www.facebook.com" class="icon alt fa-facebook" target="_blank"><span class="label">Facebook</span></a></li>
+                
+                    <li><a href="https://www.instagram.com" class="icon alt fa-instagram" target="_blank"><span class="label">Instagram</span></a></li>
+                
+                    <li><a href="https://github.com/Jlubner/my_website" class="icon alt fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+                
+                    <li><a href="https://www.linkedin.com" class="icon alt fa-linkedin" target="_blank"><span class="label">LinkedIn</span></a></li>
+                
+            </ul>
+            <ul class="copyright">
+                <li>&copy; Company Name</li>
+                
+                <li>Design:  <a href="https://www.html5up.net">HTML5 UP</a></li>
+                
+            </ul>
+        </div>
+    </footer>
+
+            
+        </div>
+
+    <!-- Scripts -->
+        <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.scrolly.min.js"></script>
+    <script src="/js/jquery.scrollex.min.js"></script>
+    <script src="/js/skel.min.js"></script>
+    <script src="/js/util.js"></script>
+
+    
+
+    <!-- Main JS -->
+    <script src="/js/main.js"></script>
+
+    
+
+    
+
+    </body>
+</html>
