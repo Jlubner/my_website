@@ -59,6 +59,15 @@ summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 2
     </item>
     
     <item>
+      <title>Formulating a Regression model for Salaries within a bank</title>
+      <link>/blogs/bank1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/blogs/bank1/</guid>
+      <description>library(lmtest) ## Loading required package: zoo ## ## Attaching package: &amp;#39;zoo&amp;#39; ## The following objects are masked from &amp;#39;package:base&amp;#39;: ## ## as.Date, as.Date.numeric library(MASS) library(car) ## Loading required package: carData library(formula.tools) library(leaps) library(dplyr) ## ## Attaching package: &amp;#39;dplyr&amp;#39; ## The following object is masked from &amp;#39;package:car&amp;#39;: ## ## recode ## The following object is masked from &amp;#39;package:MASS&amp;#39;: ## ## select ## The following objects are masked from &amp;#39;package:stats&amp;#39;: ## ## filter, lag ## The following objects are masked from &amp;#39;package:base&amp;#39;: ## ## intersect, setdiff, setequal, union library(readr) Introduction The data provided is from an anonomous bank, which includes the information on 208 employees of a certain bank, with 11 fields of interest filled with information of each employee.</description>
+    </item>
+    
+    <item>
       <title>Pre-programme Assignment 1</title>
       <link>/blogs/jason-lee_lubner/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

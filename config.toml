@@ -178,8 +178,10 @@ disqusShortname = ""
     phone = "(+44) 123 123456789"
 
     [[params.contact.address]]
-    title = "Address"
-   street = "Regent's Park,London,NW1 4SA, United Kingdom"   city = "Lonon"    country = "United Kingdom"
+    #title = "Address"
+   #street = "Regent's Park,London,NW1 4SA, United Kingdom"   
+   #city = "London"    
+   #country = "United Kingdom"
 
   # Footer section
   [params.footer]
