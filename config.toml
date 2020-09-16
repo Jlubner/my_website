@@ -93,14 +93,14 @@ disqusShortname = ""
     
     [[params.tiles.showcase]]
       title = "Biography"
-      subtitle = "About me and an exploration of the Life expectancy in Africa"      image = "pic01.jpg"
+      subtitle = "About me and an exploration of the Life expectancy in Africa"      #image = "pic01.jpg"
       url = "blogs/Jason-Lee_Lubner"
 
     [[params.tiles.showcase]]
-      title = "Tempus"
-      subtitle = "Feugiat Amet Tempus"
+      title = "Formulating a model for the Salary Structure in a bank"
+      subtitle = "Regression analysis and examination of high earning individuals"
       image = "pic02.jpg"
-      url = "blogs/tempus"
+      url = "blogs/bank1"
 
     [[params.tiles.showcase]]
       title = "Magna"
@@ -179,8 +179,7 @@ disqusShortname = ""
 
     [[params.contact.address]]
     title = "Address"
-    street = ,
-"Regent's Park,London,NW1 4SA, United Kingdom    city = "London"    country = "United Kingdom"
+   street = "Regent's Park,London,NW1 4SA, United Kingdom"   city = "Lonon"    country = "United Kingdom"
 
   # Footer section
   [params.footer]
