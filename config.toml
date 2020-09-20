@@ -95,25 +95,25 @@ disqusShortname = ""
       title = "Biography"
       subtitle = "About me and an exploration of the Life Expectancy in Africa"      
       image = "Bio.png"
-      url = "blogs/Jason-Lee_Lubner"
+      url = "Projects/bio"
 
     [[params.tiles.showcase]]
       title = "Modelling the Salary Structure of a Bank"
       subtitle = "Regression analysis and examination of high earning individuals"
       image = "Bank.money.jpg"
-      url = "blogs/bank1"
+      url = "Projects/bank"
 
     [[params.tiles.showcase]]
       title = "Covid-19: Who is wearing masks? And dealth rate dynamics."
       subtitle = "Graphical Analysis of USA COVID-19 Data"
       image = "nyc_mask.image.jpg"
-      url = "COVID-19-USA.html"
+      url = "Projects/covid"
 
-    [[params.tiles.showcase]]
-      title = "Cape Town AirBnB Pricing"
-      subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
-      image = "AirBnB.png"
-      url = "Pricing_Model_AirBnB_CT.html"
+    #[[params.tiles.showcase]]
+      #title = "Cape Town AirBnB Pricing"
+      #subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
+      #image = "AirBnB.png"
+      #url = "Project/airbnb"
 
  
 
@@ -141,7 +141,7 @@ disqusShortname = ""
 
   # Contact section
   [params.contact]
-    heading="Get In Touch"
+    labe="Get In Touch"
     enable = true
     buttonSend = "Send message"
     buttonClear = "Clear"

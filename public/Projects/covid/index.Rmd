@@ -1,0 +1,367 @@
+---
+title: "NYT Mask Use Acceptance"
+author: "Study Group 14 and Kostis Christodoulou"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    highlight: zenburn
+    theme: flatly
+    toc: yes
+    toc_float: yes
+  word_document:
+    toc: yes
+---
+
+#Exploring COVID-19 Mask Acceptanc rate and the dynaics of death as a percentage of the polutaion in the USA.
+
+```{r, setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries,echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(janitor)
+library(skimr)
+library(vroom)
+library(mosaic)
+library(here)
+
+#remotes::install_github("kjhealy/socviz")
+library(socviz)
+```
+
+
+## NYT mask use
+
+Github source for data https://github.com/nytimes/covid-19-data/tree/master/mask-use
+
+
+## Getting the data 
+
+```{r, read_data}
+#Source for data url <- "https://github.com/nytimes/covid-19-data/raw/master/mask-use/mask-use-by-county.csv"
+
+nyt_mask_survey <- read_csv(here::here("data", "nyt_mask_survey.csv"))
+
+nyt_mask_survey <- nyt_mask_survey %>%
+  clean_names() %>% 
+  mutate(
+    mostly_yes= frequently+always,
+    mostly_no = never+rarely,
+    delta = mostly_yes-mostly_no
+  )
+
+glimpse(nyt_mask_survey)
+```
+
+## Choropleth map
+
+The FIPS code is a federal code that numbers states and territories of the US. It extends to the county level with an additional four digits, so every county in the US has a unique six-digit identifier, where the first two digits represent the state. 
+
+We will be using Kieran Healy's `socviz` package which among other things contains `county_map` and `county_data`  
+
+```{r}
+# America’s choropleths; use county_map that has all polygons 
+# and county data with demographics/election data from socviz datafile
+# The id field is the FIPS code for the county
+county_map %>% 
+  sample_n(5)
+
+county_data %>%
+    sample_n(5)
+
+
+glimpse(county_data)
+# we have data on 3195 FIPS....
+
+glimpse(county_map)
+# ... but to create a map, we translate these 3195 counties to 191,382 polygons!
+
+
+
+
+```
+
+## Joing the files
+
+We have three files
+
+1. `nyt_mask_survey`, our NYT survey data, 
+1. `county_map` that has all polygons that define a county
+1. `county_data` with demographics/election data.
+
+
+
+```{r, join_data}
+
+
+county_full <- left_join(county_map, county_data, by = "id")
+
+county_masks_full <- left_join(county_full, nyt_mask_survey, 
+                                by = c("id"="countyfp"))
+```
+
+## Building our choropleth plot
+
+```{r, plot_choropleths, cache=TRUE}
+
+p <- ggplot(data = county_masks_full,
+            mapping = aes(x = long, y = lat,
+                          fill = delta, 
+                          group = group))
+
+p1 <- p + 
+  geom_polygon(color = "gray90", size = 0.05) + 
+  coord_equal()
+
+
+
+p2 <- p1 + 
+  scale_fill_gradient(low = '#ffffcc', high= '#006837')
+
+p3 <- p1 + 
+  scale_fill_gradient2()
+
+# get different colours from https://colorbrewer2.org/
+# the one shown here is https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=6
+p4 <- p1 + 
+  scale_fill_gradientn(colours = c('#8c510a','#d8b365','#f6e8c3','#c7eae5','#5ab4ac','#01665e'))
+
+
+Masks <-p4 + labs(fill = "Mask acceptance, (Mostly Yes - Mostly No)", 
+          caption = "“Estimates from The New York Times, based on roughly 250,000 interviews \nconducted by Dynata from July 2 to July 14, 2020”") +
+  guides(fill = guide_legend(nrow = 1)) + 
+  theme_map() + 
+  theme(legend.position = "bottom")
+
+ggsave("Masks.jpg",plot = Masks ,path=here::here("images"), width = 17, height = 10)  
+  knitr::include_graphics(here::here("images", "Masks.jpg"))
+
+```
+```{r voting_map, out.width="100%"}
+knitr::include_graphics(here::here("images", "2016ElectionMap_v2.png"))
+```
+
+The image above highlights some interesting dynamics. There is seems to be a acceptance(>50%) of masks in most regions of the US,specifically the west and east coastswhere mask acceptance is greater than 75% on average. However we notice that the 'Deep South' (exclusing Texas), 'Midwest', 'Deep North' and 'Mountain West Regions' so a much greater reluctance to accept mask usage, with some regions actually be opposed to mask usage(-0.25% acceptance). If we compare this to a map exploring how states voted we begin to see a rather interesting dynamic. There seems to be a higher acceptance of mask usage amongst states that voted Democrat over Republican states. This is in line with messaging from leaders within the two parties.Democratic leaders have been more vocal about the importance of face masks. Many Democratic governors have made it mandatory to wear masks in public. Joe Biden, the presumptive Democratic presidential nominee, said if he were in the White House, he would “do everything possible to make it required that people have to wear masks in public”.
+
+In contrast, while many Republican leaders have also spoken out about the importance of masks, other top Republicans have been more hesitant to mandate masks, even as their states started to see surges of cases amid the reopening phases. The most obvious of these is Donald Trump himself who has suggested wearing a mask could be seen as a political statement against him and mocked Biden for wearing a mask in public. 
+
+We now explore some further dynamics to understand if there are any relationships between country household income, population, and % who voted republican in 2016
+
+
+## Checking for relationships
+
+
+```{r, ggpairs, cache=TRUE}
+county_masks_full %>% 
+  select(hh_income, pop, per_gop_2016, delta) %>% 
+  GGally::ggpairs()+
+  theme_minimal()
+```
+From this we can see a rather strong negative correlation between the Delta(difference in yes vs no) is fairly strongly negatively correlated to percentage of GOP(Republican) voter. This confirms our suspicions that Republican denominated states are less likely to wear masks in comparison to the democrat counterparts. The relationships between household income and population also reflect a slight positive correlations which reflects that more developed states, are more likely to wear masks, and this may be viewed that bigger cities  with higher household income are more well educated and informed on the risks of COVID 19.
+
+
+# CDC COVID-19 Public Use Data
+
+Using the [CDC Covid-19 Case Surveillance Data](https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf). There are well over 3 million entries of individual, de-identified patient data. Since this is a large file, we use `vroom` to load it and keep `cache=TRUE` in the chunk options.
+
+
+```{r, cache=TRUE}
+# URL link to CDC to download data
+url <- "https://data.cdc.gov/api/views/vbim-akqf/rows.csv?accessType=DOWNLOAD"
+
+covid_data <- vroom(url)%>%
+  clean_names()
+
+```
+
+Given the data we have, the task is to produce two graphs that show death % rate:
+
+1. by age group, sex, and whether the patient had co-morbidities or not
+1. by age group, sex, and whether the patient was admited to Intensive Care Unit (ICU) or not.
+
+
+```{r covid_challenge, out.width="100%"}
+knitr::include_graphics(here::here("images", "covid_death_rate_comorbidities.png"))
+knitr::include_graphics(here::here("images", "covid_death_rate_icu.png"))
+```
+
+We examine the data using skim, head, and glimpse.
+
+```{r }
+# check data
+skim(covid_data)
+head(covid_data)
+glimpse(covid_data)
+```
+
+And we notice that there are unknown and missing values. Since we will be using sex, age_group, medcond_yn, icu_yn, and finally death_yn in our ggplot, we need to look at the frequencies of these values.
+
+```{r}
+# look at frequencies to see how to clean the data
+library(kableExtra)
+
+# sex and its frequencies table
+sex_freq <- table(covid_data$sex) %>% 
+  as.data.frame() %>% 
+  rename(Sex_type=Var1)
+kbl(sex_freq) %>%   
+  kable_styling(full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+# age group and its frequencies table
+age_group_freq <- table(covid_data$age_group) %>% 
+  as.data.frame() %>% 
+  rename(Age_group=Var1)
+kbl(age_group_freq ) %>%   
+  kable_styling(full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+# co-morbidities and its frequencies table
+medcond_yn_freq <- table(covid_data$medcond_yn) %>% 
+  as.data.frame() %>% 
+  rename(Whether_comorbidities=Var1)
+kbl(medcond_yn_freq) %>%   
+  kable_styling(full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+# icu and its frequencies table
+icu_freq <- table(covid_data$icu_yn)%>% 
+  as.data.frame() %>% 
+  rename(Whether_ICU=Var1)
+kbl(icu_freq) %>%   
+  kable_styling(full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+# death and its frequencies table
+death_yn_freq <- table(covid_data$death_yn) %>% 
+  as.data.frame() %>% 
+  rename(Whether_dead=Var1)
+kbl(death_yn_freq) %>%   
+  kable_styling(full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+Now we know that there are observations that have missing, other, unknown values.
+
+## Plot 1 Co-morbidities
+Before we plot, we need to clean the data and add a new column of death rate by age_group, sex, and whether there is presence of co-morbidities.
+```{r covid_death_rate_comorbidities prep}
+# clean the data
+covid_data_cleaned1 <- covid_data %>% 
+  filter(death_yn == "Yes" | death_yn == "No") %>% 
+  filter(sex == "Female" | sex == "Male") %>% 
+  filter(age_group != "Unknown") %>% 
+  filter(medcond_yn =="No"| medcond_yn == "Yes")  %>% 
+  select (sex, age_group,medcond_yn, death_yn) %>%
+  group_by(age_group,sex,medcond_yn) %>%
+  summarize(death_y = count(death_yn=="Yes"),death_n = count(death_yn=="No"),total = n()) %>% 
+  mutate(death_rate=death_y/total)   %>% 
+  mutate(death_rate_label = round(100*death_rate,1)) %>%  # this makes it in percentage
+  arrange(desc(death_rate)) 
+
+# we also need to reorder the medcond_yn and add label to it (for the plot)
+covid_data_cleaned1$medcond_yn<- factor(covid_data_cleaned1$medcond_yn, 
+                                        levels = c("Yes","No"),
+                                        labels=c("With comorbidities","Without comorbidities"))
+head(covid_data_cleaned1) 
+
+
+# FYI: Here we can also use the tally() function
+# group_by(sex, age_group,medcond_yn,death_yn) %>% tally()
+```
+
+
+```{r covid_death_rate_comorbidities plot}
+library(scales)
+comob <- ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death_rate_label))+
+         geom_col(fill="#697aa1",alpha=0.8)+
+         coord_flip()+
+         facet_grid(medcond_yn~sex)+
+         geom_text( position = position_dodge(1), 
+                    hjust = -0.25, 
+                    size = 3) + 
+        labs(x="",y="",
+             title = "Covid death % by age group, sex and presence of co-morbidities",
+             caption = "Source:CDC") +
+        scale_y_continuous(labels = scales::percent,limits=c(0,0.75))+ 
+        theme_bw()+
+        theme(title = element_text(size=8, colour="black"))
+
+#comob
+ggsave("comord.jpg",plot=comob,path=here::here("images"),width = 20,height = 13)
+knitr::include_graphics(here::here("images", "comord.jpg"))
+```
+
+## Plot 2 ICU
+For plot 2, we apply the same logic of cleaning and plotting, just slightly modifying the facet variable and the color of fill.
+```{r covid_death_rate_icu}
+# clean the data
+covid_data_cleaned2 <- covid_data %>% 
+  # filter(current_status == 'Laboratory-confirmed case') %>% 
+  filter(death_yn == "Yes" | death_yn == "No") %>% 
+  filter(sex == "Female" | sex == "Male") %>% 
+  filter(age_group != "Unknown") %>% 
+  filter(icu_yn =="No"| icu_yn == "Yes")  %>% 
+  select (sex, age_group,icu_yn, death_yn) %>%
+  group_by(age_group,sex,icu_yn) %>%
+  summarize(death_y = count(death_yn=="Yes"),death_n = count(death_yn=="No"),total = n()) %>% 
+  mutate(death_rate=death_y/total)   %>% 
+  mutate(death_rate_label = round(100*death_rate,1)) %>% # this makes it in percentage
+  arrange(desc(death_rate))
+
+#covid_data_cleaned2
+
+# we need to reorder the category
+covid_data_cleaned2$icu_yn<- factor(covid_data_cleaned2$icu_yn, 
+                                    levels = c("Yes","No"),
+                                    labels = c("Admitted to ICU","No ICU"))
+
+#why the numbers are different but close?
+icu <-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_label))+
+         geom_col(fill="#ff9582",alpha=0.7)+
+         coord_flip()+
+         facet_grid(icu_yn~sex)+
+         geom_text(position = position_dodge(1), 
+                    hjust = -0.25, 
+                    size = 3) +
+        labs(x="",y="",
+             title = "Covid death % by age group, sex and whether patient was admitted to ICU",
+             caption = "Source:CDC") +
+        scale_y_continuous(labels = scales::percent,limits=c(0,0.9))+
+        theme_bw()+
+        theme(title = element_text(size=8, colour="black"))
+   
+#icu
+ggsave("icu.jpg",plot=icu,path=here::here("images"),width = 20,height = 13)
+knitr::include_graphics(here::here("images", "icu.jpg"))
+```
+
+## Findings
+
+The first plot shows that overall as patients age, death rate also grows. And among patients with co-morbidities, death rates are higher. It is noteworthy that the death rate is considerably high among the group of male patients aged above 70 years old with co-morbidities (above 70%). While for the group of male and female patients aged between 10 and 19 without co-morbidities, the death rate is close to 0%. But for children under the age of 9, death rate goes up to 0.1% even without co-morbidities.  
+The second plot tells a similar story. As patients age, death rate increases. And as expected, patients admitted to ICU are likely to experience more severe symptoms and hence higher death rate. The gender difference we observed from the first plot still holds true.  
+When we investigate the death rate across these two plots, it is obvious among the group of same gender and age tier,if not suffer from both, those with co-morbidities  are more likely to survive than those admitted into ICU. 
+
+
+
+
+
+
+# Details
+
+- Who did you collaborate with: Ruchen Shangguan, Fillipo De Bortoli, Jason Lubner, Marie Cordes, Sammy Chen
+- Approximately how much time did you spend on this problem set: ANSWER HERE
+- What, if anything, gave you the most trouble: ANSWER HERE
