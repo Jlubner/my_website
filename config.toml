@@ -202,7 +202,7 @@ disqusShortname = ""
 
     [[params.footer.social]]
       icon = "fa-facebook"
-      url= "https://www.facebook.com"
+      url= "https://www.facebook.com/jason.lubner/"
       label = "Facebook"
 
     [[params.footer.social]]
@@ -217,7 +217,7 @@ disqusShortname = ""
 
     [[params.footer.social]]
       icon = "fa-linkedin"
-      url= "https://www.linkedin.com"
+      url= "https://www.linkedin.com/in/jason-lee-lubner-5b5323178/"
       label = "LinkedIn"
 
    [[params.footer.quicklinks]]
