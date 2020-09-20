@@ -59,6 +59,9 @@ disqusShortname = ""
       name = "COVID-19: Exploration"
       url = "Projects/covid"
       
+     [[params.navigation.links]]
+      name = "AirBnB Pricing Model: Cape Town"
+      url = "Projects/airbnb"
     
     [[params.navigation.links]]
       name = "TFL:Bike Rentals"
