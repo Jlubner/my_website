@@ -20,7 +20,7 @@ disqusShortname = ""
 
   # Provide your metadata here.
   name = "Jason-Lee Lubner"
-  description = "I am a South African LBS MAM2021 student, with a passion for Data Science. Welcome to my portfolio"
+  description = "I am a South African LBS Analytics and Management student, with a passion for Data Science. Welcome to my portfolio"
 
   # Link custom assets relative to /static
   custom_css = []
@@ -129,8 +129,8 @@ disqusShortname = ""
  Section Type Two
   [params.two]
     enable = true
-    title = "A bit about me:"
-    subtitle = """. 
+    title = "About:"
+    subtitle = "This porfolio is to highlight the "". 
     """
     buttonText = "Get Started"
     url = "blogs"
