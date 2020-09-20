@@ -20,7 +20,7 @@ disqusShortname = ""
 
   # Provide your metadata here.
   name = "Jason-Lee Lubner"
-  description = "A South African LBS MAM2021 student, with a passion for data science"
+  description = "I am a South African LBS MAM2021 student, with a passion for Data Science. Welcome to my portfolio"
 
   # Link custom assets relative to /static
   custom_css = []
@@ -97,16 +97,16 @@ disqusShortname = ""
       url = "blogs/Jason-Lee_Lubner"
 
     [[params.tiles.showcase]]
-      title = "Formulating a model for the Salary Structure in a bank"
+      title = "Formulating a model for the Salary Structure in a Bank"
       subtitle = "Regression analysis and examination of high earning individuals"
       image = "Bank.money.jpg"
       url = "blogs/bank1"
 
     [[params.tiles.showcase]]
-      title = "Magna"
-      subtitle = "Lorem Etiam Nullam"
-      image = "pic03.jpg"
-      url = "blogs/magna"
+      title = "Covid-19: Who is wearing masks? And dealth rate dynamics."
+      subtitle = "Graphical Analysis of USA COVID-19 Data"
+      image = "nyc_mask.image.jpg"
+      url = "COVID-19-USA.html"
 
     [[params.tiles.showcase]]
       title = "Ipsum"
@@ -178,15 +178,15 @@ disqusShortname = ""
     phone = "(+44) 123 123456789"
 
     [[params.contact.address]]
-    #title = "Address"
-   #street = "Regent's Park,London,NW1 4SA, United Kingdom"   
-   #city = "London"    
-   #country = "United Kingdom"
+    title = "Address"
+    street = "Regent's Park,London,NW1 4SA, United Kingdom"   
+    city = "London"    
+    country = "United Kingdom"
 
   # Footer section
   [params.footer]
     enable = true
-    copyright = "Company Name"
+    copyright = "London Business School"
 
     # Uses font awesome icons
     [[params.footer.social]]
