@@ -122,6 +122,13 @@ disqusShortname = ""
       url = "Projects/airbnb"
       
       
+      [[params.tiles.showcase]]
+      title = "TFL Bike rentals"
+      subtitle = "Graphical Analysis of TFL bike rentals from 2015-2020"
+      image = "santander.jpg"
+      url = "Projects/tfl"
+      
+      
       
       
       

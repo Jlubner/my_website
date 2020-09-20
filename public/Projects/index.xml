@@ -33,6 +33,26 @@ NYT mask use Github source for data https://github.com/nytimes/covid-19-data/tre
     </item>
     
     <item>
+      <title>Session 4: Homework 2</title>
+      <link>/projects/homework2_group14_master/</link>
+      <pubDate>Sun, 20 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/homework2_group14_master/</guid>
+      <description>Excess rentals in TfL bike sharing We recall the TfL data on how many bikes were hired every single day and get the latest data by running the following
+url &amp;lt;- &amp;quot;https://data.london.gov.uk/download/number-bicycle-hires/ac29363e-e0cb-47cc-a97a-e216d900a6b0/tfl-daily-cycle-hires.xlsx&amp;quot; # Download TFL data to temporary file httr::GET(url, write_disk(bike.temp &amp;lt;- tempfile(fileext = &amp;quot;.xlsx&amp;quot;))) ## Response [https://airdrive-secure.s3-eu-west-1.amazonaws.com/london/dataset/number-bicycle-hires/2020-09-18T09%3A06%3A54/tfl-daily-cycle-hires.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;amp;X-Amz-Credential=AKIAJJDIMAIVZJDICKHA%2F20200920%2Feu-west-1%2Fs3%2Faws4_request&amp;amp;X-Amz-Date=20200920T212831Z&amp;amp;X-Amz-Expires=300&amp;amp;X-Amz-Signature=9b012bf1ff2cb2113c6ca533d6c4a94604e76434a90a54f55a41b3aaed65d518&amp;amp;X-Amz-SignedHeaders=host] ## Date: 2020-09-20 21:28 ## Status: 200 ## Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet ## Size: 165 kB ## &amp;lt;ON DISK&amp;gt; /var/folders/mp/9mbtdtm946sg07v4bbfvn0gh0000gn/T//RtmpmvXAug/file7741663e3072.xlsx # Use read_excel to read it as dataframe bike0 &amp;lt;- read_excel(bike.</description>
+    </item>
+    
+    <item>
+      <title>Session 4: Homework 2</title>
+      <link>/projects/tfl/</link>
+      <pubDate>Sun, 20 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/tfl/</guid>
+      <description>Excess rentals in TfL bike sharing We recall the TfL data on how many bikes were hired every single day and get the latest data by running the following
+url &amp;lt;- &amp;quot;https://data.london.gov.uk/download/number-bicycle-hires/ac29363e-e0cb-47cc-a97a-e216d900a6b0/tfl-daily-cycle-hires.xlsx&amp;quot; # Download TFL data to temporary file httr::GET(url, write_disk(bike.temp &amp;lt;- tempfile(fileext = &amp;quot;.xlsx&amp;quot;))) ## Response [https://airdrive-secure.s3-eu-west-1.amazonaws.com/london/dataset/number-bicycle-hires/2020-09-18T09%3A06%3A54/tfl-daily-cycle-hires.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;amp;X-Amz-Credential=AKIAJJDIMAIVZJDICKHA%2F20200920%2Feu-west-1%2Fs3%2Faws4_request&amp;amp;X-Amz-Date=20200920T212831Z&amp;amp;X-Amz-Expires=300&amp;amp;X-Amz-Signature=9b012bf1ff2cb2113c6ca533d6c4a94604e76434a90a54f55a41b3aaed65d518&amp;amp;X-Amz-SignedHeaders=host] ## Date: 2020-09-20 21:33 ## Status: 200 ## Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet ## Size: 165 kB ## &amp;lt;ON DISK&amp;gt; /var/folders/mp/9mbtdtm946sg07v4bbfvn0gh0000gn/T//RtmpSKrp2o/file79383a550a01.xlsx # Use read_excel to read it as dataframe bike0 &amp;lt;- read_excel(bike.</description>
+    </item>
+    
+    <item>
       <title>Formulating a Regression model for Salaries within a bank</title>
       <link>/projects/bank/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

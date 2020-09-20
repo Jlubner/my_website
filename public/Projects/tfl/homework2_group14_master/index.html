@@ -1,0 +1,245 @@
+<!DOCTYPE HTML>
+<html>
+
+    <head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="description" content="I am a South African LBS Analytics and Management student, with a passion for Data Science. Welcome to my portfolio">
+	<meta name="author" content="Jason-Lee Lubner">
+	<meta name="generator" content="Hugo 0.74.3" />
+	<title>Session 4: Homework 2 &middot; Jason-Lee Lubner&#39;s Portfolio</title>
+	<!-- Stylesheets -->
+	
+	<link rel="stylesheet" href="/css/main.css"/>
+	
+	
+
+	
+
+	<!-- Custom Fonts -->
+	<link href="/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+	
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="js/ie/html5shiv.js"></script>
+	<script src="js/ie/html5shiv.jsrespond.min.js"></script>
+	<![endif]-->
+</head>
+
+    <body>
+
+    <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Header -->
+    <header id="header" class="alt">
+        <a href="/" class="logo"><strong>Jason-Lee Lubner</strong> <span></span></a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+
+<!-- Menu -->
+    <nav id="menu">
+        <ul class="links">
+            
+                <li><a href="/">Home</a></li>
+            
+                <li><a href="/Projects/bio">Biography</a></li>
+            
+                <li><a href="/Projects/bank">Salary Model</a></li>
+            
+                <li><a href="/Projects/covid">COVID-19: Exploration</a></li>
+            
+                <li><a href="/Projects/airbnb">AirBnB Pricing Model</a></li>
+            
+
+        </ul>
+        <ul class="actions vertical">
+            
+            
+        </ul>
+    </nav>
+
+        <!-- Main -->
+            <div id="main" class="alt">
+
+                
+                    <section id="one">
+                        <div class="inner">
+                            <header class="major">
+                                <h1>Session 4: Homework 2</h1>
+                            </header>
+                            
+                            
+
+
+<div id="excess-rentals-in-tfl-bike-sharing" class="section level1">
+<h1>Excess rentals in TfL bike sharing</h1>
+<p>We recall the TfL data on how many bikes were hired every single day and get the latest data by running the following</p>
+<pre class="r"><code>url &lt;- &quot;https://data.london.gov.uk/download/number-bicycle-hires/ac29363e-e0cb-47cc-a97a-e216d900a6b0/tfl-daily-cycle-hires.xlsx&quot;
+
+# Download TFL data to temporary file
+httr::GET(url, write_disk(bike.temp &lt;- tempfile(fileext = &quot;.xlsx&quot;)))</code></pre>
+<pre><code>## Response [https://airdrive-secure.s3-eu-west-1.amazonaws.com/london/dataset/number-bicycle-hires/2020-09-18T09%3A06%3A54/tfl-daily-cycle-hires.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAJJDIMAIVZJDICKHA%2F20200920%2Feu-west-1%2Fs3%2Faws4_request&amp;X-Amz-Date=20200920T212831Z&amp;X-Amz-Expires=300&amp;X-Amz-Signature=9b012bf1ff2cb2113c6ca533d6c4a94604e76434a90a54f55a41b3aaed65d518&amp;X-Amz-SignedHeaders=host]
+##   Date: 2020-09-20 21:28
+##   Status: 200
+##   Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+##   Size: 165 kB
+## &lt;ON DISK&gt;  /var/folders/mp/9mbtdtm946sg07v4bbfvn0gh0000gn/T//RtmpapBtSm/file7827702b2cb9.xlsx</code></pre>
+<pre class="r"><code># Use read_excel to read it as dataframe
+bike0 &lt;- read_excel(bike.temp,
+                   sheet = &quot;Data&quot;,
+                   range = cell_cols(&quot;A:B&quot;))
+
+# change dates to get year, month, and week
+bike &lt;- bike0 %&gt;% 
+  clean_names() %&gt;% 
+  rename (bikes_hired = number_of_bicycle_hires) %&gt;% 
+  mutate (year = year(day),
+          month = lubridate::month(day, label = TRUE),
+          week = isoweek(day))</code></pre>
+<p>The first graph examines monthly deviation of tfl bike rentals for the period of 2015-2020. Red deviations correspond to actual rentals being lower than the expected mean while green reflects actual rentals above the mean.</p>
+<p>The second one looks at percentage changes from the expected level of weekly rentals. The two grey shaded rectangles correspond to the second (weeks 14-26) and fourth (weeks 40-52) quarters.</p>
+<pre class="r"><code>library(lubridate)
+
+#prep data
+
+plot1 &lt;- bike %&gt;%
+  filter( year &gt;= 2015 ,year&lt;=2020)%&gt;%
+  group_by(year,month)%&gt;%
+  summarise(actual_rentals=mean(bikes_hired),.groups=&quot;keep&quot;)
+
+plot1_1 &lt;-bike %&gt;%
+  filter( year &gt;= 2015 ,year&lt;=2020)%&gt;%
+  group_by(month)%&gt;%
+  summarise(expected_rentals=mean(bikes_hired),.groups=&quot;keep&quot;)
+
+
+merged &lt;-left_join(plot1,plot1_1, by= &quot;month&quot;)
+
+merged1 &lt;- mutate(merged,excess_rentals=actual_rentals-expected_rentals,up = ifelse(actual_rentals&gt;expected_rentals, excess_rentals, 0),down = ifelse(actual_rentals&lt;expected_rentals, excess_rentals, 0))
+
+
+#create plot
+Monthly_change_plot &lt;- ggplot(data=merged1,aes(x=month,y=actual_rentals,group=year))+
+      geom_line(colour=&quot;black&quot;)+
+      geom_line(data=merged,aes(x=month,y=expected_rentals),colour=&quot;blue&quot;,size=1)+
+      facet_wrap(vars(year))+
+      labs(title = &quot;Monthly changes in Tfl Bike Rental&quot;,subtitle = &quot;Change from monthly average shown in blue and calculated from 2015-2019&quot;,x=&quot;&quot;,y=&quot;Bike Rentals&quot;, caption = &quot;Source: TfL, London Data Store&quot;)+
+    theme_minimal()+geom_ribbon(aes(ymin=expected_rentals,ymax=up+expected_rentals),fill=&quot;#7DCD85&quot;,alpha=0.4)  +
+  geom_ribbon(aes(ymin=expected_rentals,ymax=down+expected_rentals),fill=&quot;#CB454A&quot;,alpha=0.4)+
+  NULL
+
+Monthly_change_plot</code></pre>
+<p><img src="/Projects/tfl/homework2_group14_master_files/figure-html/tfl_monthly-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>… and graph 2.</p>
+<pre class="r"><code>#prep data
+
+epected_rentals_week&lt;- bike%&gt;%
+  filter(year&gt;=2015)%&gt;%
+  group_by(week)%&gt;%
+summarise(expected_rentals= mean(bikes_hired,na.rm=T))
+
+weekly_bike &lt;- bike %&gt;%
+  filter(year&gt;=2015) %&gt;%
+  group_by(year,week) %&gt;%
+  summarise(actual_rentals = mean(bikes_hired,na.rm=T)) %&gt;%
+  left_join(epected_rentals_week,
+                    by = &#39;week&#39;) %&gt;%
+  mutate(excess_rentals = actual_rentals - expected_rentals,
+         excess_rentals_per_change = ((expected_rentals + excess_rentals) / expected_rentals) - 1,
+         up = ifelse(actual_rentals&gt;expected_rentals, excess_rentals, 0),
+         down = ifelse(actual_rentals&lt;expected_rentals, excess_rentals, 0),
+         up_per = ifelse(actual_rentals&gt;expected_rentals, excess_rentals_per_change, 0),
+         down_per = ifelse(actual_rentals&lt;expected_rentals, excess_rentals_per_change, 0)
+         )
+
+
+#create plot
+
+ggplot(weekly_bike, aes(x=week, y = excess_rentals_per_change, group=year))+
+  geom_rect( inherit.aes=F,
+            aes(xmin=13, xmax=26, ymin=-0.6, ymax=0.6), fill=&#39;lightgray&#39;, alpha=0.04)+ geom_rect( inherit.aes=F,
+            aes(xmin=39, xmax=53, ymin=-0.6, ymax=0.6), fill=&#39;lightgray&#39;, alpha=0.04)+  
+  geom_line()+
+  facet_wrap(~year, nrow = 2)+
+  theme_minimal()+
+  geom_ribbon(aes(ymin=0,ymax=up_per),fill=&quot;#7DCD85&quot;,alpha=0.4)  +
+  geom_ribbon(aes(ymin=0,ymax=down_per),fill=&quot;#CB454A&quot;,alpha=0.4)+
+  geom_rug(aes(colour=ifelse(actual_rentals&gt;=expected_rentals,&quot;&gt;=0&quot;,&quot;&lt;0&quot;)),sides=&quot;b&quot;)+
+  scale_colour_manual(values=c(&quot;#CB454A&quot;,&quot;#7DCD85&quot;),name=&quot;Actual vs Expected &quot;, guide=FALSE)+
+  scale_y_continuous(labels = scales::percent)+
+  scale_x_continuous(limits = c(0, 53), breaks = c(13,26,39,53))+
+  labs(title = &quot;Weekly changes in TfL bike rentals&quot;,
+    subtitle = &quot;% change from weekly averages \ncalculated between 2015-2019&quot;,
+    y=&quot;&quot;,
+    caption = &quot;Source: TfL, London Data Store&quot;)+
+      theme(panel.grid.major=element_line(colour=&quot;grey&quot;),panel.grid.minor=element_line(colour = &quot;grey&quot;))</code></pre>
+<p><img src="/Projects/tfl/homework2_group14_master_files/figure-html/Weekly_rentals-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>When looking at May and June in 2020 and 2019 we can see, very obviously, that there was a significant decrease of bike rentals within these months in 2020 compared to 2019. This is most likely caused by the Covid-19 pandemic lockdown measures in which people were either not allowed to go out (in quarantine) or people generally wanted to stay safe inside. Consequently, less people used bike rentals over the initial period, followed by a rapid spike in rentals which is probably indicative of the easing measures on ‘lockdown’ restrictions and Londener’s trying to get some fresh summer air. Its also interesting to note that tfl rentals seemed to sit below average for most of 2019 and perhaps they were loosing their popularity. However, its clear to see that they have once again gained their popularity post lock down easing and perhaps this was a turn around for the company.</p>
+</div>
+
+                        </div>
+                    </section>
+            <!-- Disqus Inject -->
+                
+            </div>
+            
+        <!-- Footer -->
+            
+                <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <ul class="icons">
+                
+                    <li><a href="https://www.twitter.com" class="icon alt fa-twitter" target="_blank"><span class="label">Twitter</span></a></li>
+                
+                    <li><a href="https://www.facebook.com" class="icon alt fa-facebook" target="_blank"><span class="label">Facebook</span></a></li>
+                
+                    <li><a href="https://www.instagram.com" class="icon alt fa-instagram" target="_blank"><span class="label">Instagram</span></a></li>
+                
+                    <li><a href="https://github.com/Jlubner/my_website" class="icon alt fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+                
+                    <li><a href="https://www.linkedin.com" class="icon alt fa-linkedin" target="_blank"><span class="label">LinkedIn</span></a></li>
+                
+            </ul>
+            <ul class="copyright">
+                <li>&copy; London Business School</li>
+                
+                <li>Design:  <a href="https://www.html5up.net">HTML5 UP</a></li>
+                
+            </ul>
+        </div>
+    </footer>
+
+            
+        </div>
+
+    <!-- Scripts -->
+        <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.scrolly.min.js"></script>
+    <script src="/js/jquery.scrollex.min.js"></script>
+    <script src="/js/skel.min.js"></script>
+    <script src="/js/util.js"></script>
+
+    
+
+    <!-- Main JS -->
+    <script src="/js/main.js"></script>
+
+    
+
+    
+
+    </body>
+</html>

@@ -1,0 +1,171 @@
+---
+title: "Session 4: Homework 2"
+author: "Study Group 14"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    highlight: zenburn
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+    code_folding: show
+---
+
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, include=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(lubridate)
+library(here)
+library(skimr)
+library(janitor)
+library(httr)
+library(readxl)
+library(vroom)
+library(wbstats)
+library(tidyr)
+```
+
+
+
+# Excess rentals in TfL bike sharing
+
+We recall the TfL data on how many bikes were hired every single day and get the latest data by running the following
+
+```{r, get_tfl_data, cache=TRUE}
+url <- "https://data.london.gov.uk/download/number-bicycle-hires/ac29363e-e0cb-47cc-a97a-e216d900a6b0/tfl-daily-cycle-hires.xlsx"
+
+# Download TFL data to temporary file
+httr::GET(url, write_disk(bike.temp <- tempfile(fileext = ".xlsx")))
+
+# Use read_excel to read it as dataframe
+bike0 <- read_excel(bike.temp,
+                   sheet = "Data",
+                   range = cell_cols("A:B"))
+
+# change dates to get year, month, and week
+bike <- bike0 %>% 
+  clean_names() %>% 
+  rename (bikes_hired = number_of_bicycle_hires) %>% 
+  mutate (year = year(day),
+          month = lubridate::month(day, label = TRUE),
+          week = isoweek(day))
+```
+
+The first graph examines monthly deviation of tfl bike rentals for the period of 2015-2020. Red deviations correspond to actual rentals being lower than the expected mean while green reflects actual rentals above the mean.
+
+The second one looks at percentage changes from the expected level of weekly rentals. The two grey shaded rectangles correspond to the second (weeks 14-26) and fourth (weeks 40-52) quarters.
+
+
+
+```{r,tfl_monthly}
+
+library(lubridate)
+
+#prep data
+
+plot1 <- bike %>%
+  filter( year >= 2015 ,year<=2020)%>%
+  group_by(year,month)%>%
+  summarise(actual_rentals=mean(bikes_hired),.groups="keep")
+
+plot1_1 <-bike %>%
+  filter( year >= 2015 ,year<=2020)%>%
+  group_by(month)%>%
+  summarise(expected_rentals=mean(bikes_hired),.groups="keep")
+
+
+merged <-left_join(plot1,plot1_1, by= "month")
+
+merged1 <- mutate(merged,excess_rentals=actual_rentals-expected_rentals,up = ifelse(actual_rentals>expected_rentals, excess_rentals, 0),down = ifelse(actual_rentals<expected_rentals, excess_rentals, 0))
+
+
+#create plot
+Monthly_change_plot <- ggplot(data=merged1,aes(x=month,y=actual_rentals,group=year))+
+      geom_line(colour="black")+
+      geom_line(data=merged,aes(x=month,y=expected_rentals),colour="blue",size=1)+
+      facet_wrap(vars(year))+
+      labs(title = "Monthly changes in Tfl Bike Rental",subtitle = "Change from monthly average shown in blue and calculated from 2015-2019",x="",y="Bike Rentals", caption = "Source: TfL, London Data Store")+
+    theme_minimal()+geom_ribbon(aes(ymin=expected_rentals,ymax=up+expected_rentals),fill="#7DCD85",alpha=0.4)  +
+  geom_ribbon(aes(ymin=expected_rentals,ymax=down+expected_rentals),fill="#CB454A",alpha=0.4)+
+  NULL
+
+Monthly_change_plot
+
+```
+
+... and graph 2.
+
+```{r,Weekly_rentals}
+
+#prep data
+
+epected_rentals_week<- bike%>%
+  filter(year>=2015)%>%
+  group_by(week)%>%
+summarise(expected_rentals= mean(bikes_hired,na.rm=T))
+
+weekly_bike <- bike %>%
+  filter(year>=2015) %>%
+  group_by(year,week) %>%
+  summarise(actual_rentals = mean(bikes_hired,na.rm=T)) %>%
+  left_join(epected_rentals_week,
+                    by = 'week') %>%
+  mutate(excess_rentals = actual_rentals - expected_rentals,
+         excess_rentals_per_change = ((expected_rentals + excess_rentals) / expected_rentals) - 1,
+         up = ifelse(actual_rentals>expected_rentals, excess_rentals, 0),
+         down = ifelse(actual_rentals<expected_rentals, excess_rentals, 0),
+         up_per = ifelse(actual_rentals>expected_rentals, excess_rentals_per_change, 0),
+         down_per = ifelse(actual_rentals<expected_rentals, excess_rentals_per_change, 0)
+         )
+
+
+#create plot
+
+ggplot(weekly_bike, aes(x=week, y = excess_rentals_per_change, group=year))+
+  geom_rect( inherit.aes=F,
+            aes(xmin=13, xmax=26, ymin=-0.6, ymax=0.6), fill='lightgray', alpha=0.04)+ geom_rect( inherit.aes=F,
+            aes(xmin=39, xmax=53, ymin=-0.6, ymax=0.6), fill='lightgray', alpha=0.04)+  
+  geom_line()+
+  facet_wrap(~year, nrow = 2)+
+  theme_minimal()+
+  geom_ribbon(aes(ymin=0,ymax=up_per),fill="#7DCD85",alpha=0.4)  +
+  geom_ribbon(aes(ymin=0,ymax=down_per),fill="#CB454A",alpha=0.4)+
+  geom_rug(aes(colour=ifelse(actual_rentals>=expected_rentals,">=0","<0")),sides="b")+
+  scale_colour_manual(values=c("#CB454A","#7DCD85"),name="Actual vs Expected ", guide=FALSE)+
+  scale_y_continuous(labels = scales::percent)+
+  scale_x_continuous(limits = c(0, 53), breaks = c(13,26,39,53))+
+  labs(title = "Weekly changes in TfL bike rentals",
+    subtitle = "% change from weekly averages \ncalculated between 2015-2019",
+    y="",
+    caption = "Source: TfL, London Data Store")+
+      theme(panel.grid.major=element_line(colour="grey"),panel.grid.minor=element_line(colour = "grey"))
+
+
+```
+
+
+
+When looking at May and June in 2020 and 2019 we can see, very obviously, that there was a significant decrease of bike rentals within these months in 2020 compared to 2019. This is most likely caused by the Covid-19 pandemic lockdown measures in which people were either not allowed to go out (in quarantine) or people generally wanted to stay safe inside. Consequently, less people used bike rentals over the initial period, followed by a rapid spike in rentals which is probably indicative of the easing measures on 'lockdown' restrictions and Londener's trying to get some fresh summer air. Its also interesting to note that tfl rentals seemed to sit below average for most of 2019 and perhaps they were loosing their popularity. However, its clear to see that they have once again gained their popularity post lock down easing and perhaps this was a turn around for the company.
+
+
+
