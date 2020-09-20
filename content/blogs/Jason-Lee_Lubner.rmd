@@ -22,7 +22,7 @@ library(here)
 
 ## **Biography of Jason Lubner**
 
-![](/Users/jasonleelubner/Desktop/Screenshot 2020-08-03 at 20.13.44.png)
+
 
 ***
   
@@ -41,7 +41,15 @@ Having grown up in a family who have founded and manage their own businesses as 
 I have also  undertaken internships in different areas of business and finance; including a placement in wealth management and financial investments at [**Stonehage Flemming**](https://www.stonehagefleming.com/) in 2016 and in private banking at [**Bank J. Saffra Sarasin**](https://www.jsafrasarasin.com/),in 2020.
 
 
-# Task 2: `gapminder` country comparison
+
+# Some Analysis: 
+
+As I still hold South Africa very close to my heart and hope to bring about change to my home country,below I have outlined some analysis into the Life Expectancy in South Africa and the African continent as a whole. 
+
+And while I admired my home country, I do plan to expand my career opportunities in London. However, this does not come with ease as the UK's decision to vote leave on the 2016 BREXIT referendum meant that this would become increasingly more difficult for foreigners like myself to get jobs in the UK. As such i have also detailed a breakdown into the voting dynamics.
+
+
+## An Exploration into Life Expectancy in South Africa
 
 You have seen the `gapminder` dataset that has data on life expectancy, population, and GDP per capita for 142 countries from 1952 to 2007. To get a glipmse of the dataframe, namely to see the variable names, variable types, etc., we use the `glimpse` function. We also want to have a look at the first 20 rows of data.
 
@@ -122,7 +130,9 @@ Finally when analyzing continents  on a global perspective. We can see a clear i
 
 It is also evident to see that there is still a clear divide between  developed and developing countries and the effects it has on life expectancy, its clear that Europe,Oceania and a large position of the Americas which inherit a developed status have much higher life expecatncy than countries in the developing world and thus economic and humanitarian factors are both big influencers of Life Expectancy.
 
-# Task 3: Brexit voting
+
+
+## UK Brexit Voting.
 
 We will have a quick look at the results of the 2016 Brexit vote in the UK. First we read the data using `read_csv()` and have a quick glimpse at the data
 

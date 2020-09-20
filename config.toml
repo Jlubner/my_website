@@ -47,9 +47,9 @@ disqusShortname = ""
       name = "Home"
       url = "#"
 
-    [[params.navigation.links]]
-      name = "Blogs"
-      url = "blogs"
+    #[[params.navigation.links]]
+     # name = "Blogs"
+      #url = "blogs"
 
     [[params.navigation.links]]
      # name = "Generic Blog"
@@ -67,14 +67,14 @@ disqusShortname = ""
     #    url = "UrlOfLink"
 
     # Button Style 1
-    [[params.navigation.button1]]
-      name = "Get Started"
-      url = "blogs"
+   # [[params.navigation.button1]]
+      #name = "Get Started"
+     # url = "blogs"
 
     # Button Style 2
-    [[params.navigation.button2]]
-      name = "Log In"
-      url = "#"
+    #[[params.navigation.button2]]
+      #name = "Home"
+      #url = "#"
 
 
   # Banner section
@@ -82,8 +82,8 @@ disqusShortname = ""
     # To change the background image on the homepage banner, replace 'banner.jpg' in
     # the 'static/img' folder.
     title = "Hi, my name is Jason-Lee Lubner"
-    subtitle = "A South African LBS MAM2021 student, with a passion for data science."
-    buttonText = "Overview"
+    subtitle = "A South African LBS MAM2021 student, with a passion for data science. Welcome to my Portfolio"
+    buttonText = "Get Started"
 
 
   # Tiles Section
@@ -93,11 +93,12 @@ disqusShortname = ""
     
     [[params.tiles.showcase]]
       title = "Biography"
-      subtitle = "About me and an exploration of the Life expectancy in Africa"      #image = "pic01.jpg"
+      subtitle = "About me and an exploration of the Life Expectancy in Africa"      
+      image = "Bio.png"
       url = "blogs/Jason-Lee_Lubner"
 
     [[params.tiles.showcase]]
-      title = "Formulating a model for the Salary Structure in a Bank"
+      title = "Modelling the Salary Structure of a Bank"
       subtitle = "Regression analysis and examination of high earning individuals"
       image = "Bank.money.jpg"
       url = "blogs/bank1"
@@ -109,22 +110,13 @@ disqusShortname = ""
       url = "COVID-19-USA.html"
 
     [[params.tiles.showcase]]
-      title = "Ipsum"
-      subtitle = "Nisl Sed Aliquam"
-      image = "pic04.jpg"
-      url = "blogs/ipsum"
+      title = "Cape Town AirBnB Pricing"
+      subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
+      image = "AirBnB.png"
+      url = "Pricing_Model_AirBnB_CT.html"
 
-    [[params.tiles.showcase]]
-      title = "Consequat"
-      subtitle = "Ipsum Dolor Sit Amet"
-      image = "pic05.jpg"
-      url = "blogs/ipsum"
+ 
 
-    [[params.tiles.showcase]]
-      title = "Etiam"
-      subtitle = "Feugiat Amet Tempus"
-      image = "pic06.jpg"
-      url = "blogs/ipsum"
     # You can make more showcases by copy and pasting the code above
 
   [params.blog]
@@ -135,16 +127,16 @@ disqusShortname = ""
     # To add more blogs just copy and paste the code.
 
   # Section Type Two
-  [params.two]
-    enable = true
-    title = "Massa libero"
-    subtitle = """Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. 
-    Mauris aliquet magna magna sed nunc rhoncus pharetra. 
-    Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. 
-    Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero.
-    Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus."""
-    buttonText = "Get Started"
-    url = "blogs"
+  #[params.two]
+    #enable = true
+    #title = "Massa libero"
+    #subtitle = """Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. 
+    #Mauris aliquet magna magna sed nunc rhoncus pharetra. 
+    #Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. 
+    #Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero.
+    #Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus."""
+   # buttonText = "Get Started"
+    #url = "blogs"
 
 
   # Contact section
@@ -214,7 +206,7 @@ disqusShortname = ""
       url= "https://www.linkedin.com"
       label = "LinkedIn"
 
-    [[params.footer.quicklinks]]
+   [[params.footer.quicklinks]]
       text = "Design: "
-      url= "https://www.html5up.net"
+     url= "https://www.html5up.net"
       alt = "HTML5 UP"

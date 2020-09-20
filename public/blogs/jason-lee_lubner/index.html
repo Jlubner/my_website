@@ -52,8 +52,6 @@
             
                 <li><a href="/">Home</a></li>
             
-                <li><a href="/blogs">Blogs</a></li>
-            
                 <li><a href="/"></a></li>
             
                 <li><a href="/"></a></li>
@@ -62,10 +60,6 @@
         </ul>
         <ul class="actions vertical">
             
-                <li><a href="/blogs" class="button special fit">Get Started</a></li>
-            
-            
-                <li><a href="/" class="button fit">Log In</a></li>
             
         </ul>
     </nav>
@@ -85,7 +79,6 @@
 
 <div id="biography-of-jason-lubner" class="section level2">
 <h2><strong>Biography of Jason Lubner</strong></h2>
-<p><img src="/Users/jasonleelubner/Desktop/Screenshot%202020-08-03%20at%2020.13.44.png" /></p>
 <hr />
 <p>I am currently pursuing my master’s degree at <a href="https://www.london.edu"><strong>London Business School</strong></a> in Analytics and Management. I was born on the 9th of February 1996 in Johannesburg, South Africa. During my primary school years; I was an active participant in sports throughout and was awarded the <em>Victor ludorum</em> for swimming. My interests oriented toward more academic, cultural and intellectual pursuits during my high school years. I received honors for my many years involved in representing my school in public speaking team, where I participated in both group and individual impromptu speaking competitions.</p>
 <p>Another important part of my life has been and continues to be my involvement with philanthropy and community development, where I engage in both family as well as my own personal philanthropic initiatives. I have worked with:
@@ -96,8 +89,12 @@
 <p>Having grown up in a family who have founded and manage their own businesses as well as a number of charitable organisations, I have always been inspired by their entrepreneurial spirit. However, I also sought out academic and professional experiences that would allow me to develop a more analytical approach to business management. I initially undertook <em>Actuarial Science</em> at the <a href="http://www.uct.ac.za/"><strong>University of Cape Town</strong></a>, in 2015, before seeking out greater academic challenges at <a href="https://www.lse.ac.uk/"><strong>The London School of Economics and Political Science</strong></a>, where I greaduated with a first class honours <em>Bsc. in Mathematics,Statistics and Business</em>, in 2019.</p>
 <p>I have also undertaken internships in different areas of business and finance; including a placement in wealth management and financial investments at <a href="https://www.stonehagefleming.com/"><strong>Stonehage Flemming</strong></a> in 2016 and in private banking at <a href="https://www.jsafrasarasin.com/"><strong>Bank J. Saffra Sarasin</strong></a>,in 2020.</p>
 </div>
-<div id="task-2-gapminder-country-comparison" class="section level1">
-<h1>Task 2: <code>gapminder</code> country comparison</h1>
+<div id="some-analysis" class="section level1">
+<h1>Some Analysis:</h1>
+<p>As I still hold South Africa very close to my heart and hope to bring about change to my home country,below I have outlined some analysis into the Life Expectancy in South Africa and the African continent as a whole.</p>
+<p>And while I admired my home country, I do plan to expand my career opportunities in London. However, this does not come with ease as the UK’s decision to vote leave on the 2016 BREXIT referendum meant that this would become increasingly more difficult for foreigners like myself to get jobs in the UK. As such i have also detailed a breakdown into the voting dynamics.</p>
+<div id="an-exploration-into-life-expectancy-in-south-africa" class="section level2">
+<h2>An Exploration into Life Expectancy in South Africa</h2>
 <p>You have seen the <code>gapminder</code> dataset that has data on life expectancy, population, and GDP per capita for 142 countries from 1952 to 2007. To get a glipmse of the dataframe, namely to see the variable names, variable types, etc., we use the <code>glimpse</code> function. We also want to have a look at the first 20 rows of data.</p>
 <pre class="r"><code>glimpse(gapminder)</code></pre>
 <pre><code>## Rows: 1,704
@@ -183,8 +180,8 @@ We can see Reunion has maintained generally high levels of life expecatcny in co
 <p>Finally when analyzing continents on a global perspective. We can see a clear increase in life expectancy across the globe-This could be accredited to the general advancements in technology, healthcare, security(physical and food) and access to infomation- with the most significant increases in Asia and Africa. This were previously very colonised areas and only gained both their political and economic freedom towards the end of the 20th century. The large increase across Asia regions in particular could be to to the rise of the of asias economic significance and high growth rates towards the end of the 20th century. However, these continetns also retain countries with the lowest life expectancy and thus it is evident there are much higher levels of inequality between countries in these contintents than in comparison to contiental Europe which has has had a somewhat equal increse in life expectancy since 1952.</p>
 <p>It is also evident to see that there is still a clear divide between developed and developing countries and the effects it has on life expectancy, its clear that Europe,Oceania and a large position of the Americas which inherit a developed status have much higher life expecatncy than countries in the developing world and thus economic and humanitarian factors are both big influencers of Life Expectancy.</p>
 </div>
-<div id="task-3-brexit-voting" class="section level1">
-<h1>Task 3: Brexit voting</h1>
+<div id="uk-brexit-voting." class="section level2">
+<h2>UK Brexit Voting.</h2>
 <p>We will have a quick look at the results of the 2016 Brexit vote in the UK. First we read the data using <code>read_csv()</code> and have a quick glimpse at the data</p>
 <pre class="r"><code>brexit_results &lt;- read_csv(here::here(&quot;data&quot;,&quot;brexit_results.csv&quot;))
 
@@ -244,6 +241,7 @@ glimpse(brexit_results)</code></pre>
 <p>2.) Increased violent crime in the UK being as well as xenophobia towards Syrian refugees and EU consensus.</p>
 <p>3.)“Academics James Dennison and Noah Carl argue that”the most important phenomenon to be explained vis-à-vis the referendum result in our view is that a sizable Eurosceptic faction has remained extant in Britain over the last four decades“. Using data from the Eurobarometer survey they showed that fewer Britons considered themselves European than any other EU nationality. Furthermore, they show that British trading patterns, capital flows and emigration patterns were the least Europeanised of any EU member state”(<a href="https://en.wikipedia.org/wiki/Causes_of_the_vote_in_favour_of_Brexit#Demographic_and_cultural_factors" class="uri">https://en.wikipedia.org/wiki/Causes_of_the_vote_in_favour_of_Brexit#Demographic_and_cultural_factors</a>). This could explain the correlation between UK nationals voting in favor of Brexit as they felt less incorporated in the EU to begin with and thus were less inclined to remain.</p>
 <p>The are a number of other reasons that could explain this positive correlation, however it is more likely that the leave vote was not only determined by the UK national percentage but a number of other factors such as age,ethnicity and income brackets which determine the percentage of leave votes. A further regression analysis would be required to determine this.</p>
+</div>
 </div>
 
                         </div>
