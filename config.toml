@@ -138,9 +138,9 @@ disqusShortname = ""
   [params.two]
     enable = true
     title = "About:"
-    subtitle = "This porfolio is to highlight a variety of statistical analysis conducted in R. I am currently reading for the LBS's MAM 2021 program. I completed my undergraduate with a BSc in Mathematics,Statistics and Finance and am now hoping to explore career opportunities where Big Data meets Business and Finance"
-    buttonText = "Get Started"
-    url = "blogs"
+    subtitle = "This porfolio is to highlight a variety of statistical analysis conducted in R. I am currently reading for the LBS's MAM 2021 program after completing my undergraduate with a BSc in Mathematics,Statistics and Busines From LSE in 2019. I am now hoping to explore career opportunities where Big Data meets Business and Finance but till find a way to create a meaningful difference in areas of the wrold that need it most"
+    buttonText = "Click to download CV"
+    url = "cv/index"
 
 
   # Contact section
