@@ -141,7 +141,7 @@ p4 <- p1 +
   scale_fill_gradientn(colours = c('#8c510a','#d8b365','#f6e8c3','#c7eae5','#5ab4ac','#01665e'))
 
 
-Masks <-p4 + labs(fill = "Mask acceptance, (Mostly Yes - Mostly No)", 
+p4 + labs(fill = "Mask acceptance, (Mostly Yes - Mostly No)", 
           caption = "“Estimates from The New York Times, based on roughly 250,000 interviews \nconducted by Dynata from July 2 to July 14, 2020”") +
   guides(fill = guide_legend(nrow = 1)) + 
   theme_map() + 

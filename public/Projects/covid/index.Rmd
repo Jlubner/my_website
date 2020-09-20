@@ -73,7 +73,7 @@ The FIPS code is a federal code that numbers states and territories of the US. I
 
 We will be using Kieran Healy's `socviz` package which among other things contains `county_map` and `county_data`  
 
-```{r}
+```{r,22}
 # America’s choropleths; use county_map that has all polygons 
 # and county data with demographics/election data from socviz datafile
 # The id field is the FIPS code for the county
@@ -141,18 +141,13 @@ p4 <- p1 +
   scale_fill_gradientn(colours = c('#8c510a','#d8b365','#f6e8c3','#c7eae5','#5ab4ac','#01665e'))
 
 
-Masks <-p4 + labs(fill = "Mask acceptance, (Mostly Yes - Mostly No)", 
+p4 + labs(fill = "Mask acceptance, (Mostly Yes - Mostly No)", 
           caption = "“Estimates from The New York Times, based on roughly 250,000 interviews \nconducted by Dynata from July 2 to July 14, 2020”") +
   guides(fill = guide_legend(nrow = 1)) + 
   theme_map() + 
   theme(legend.position = "bottom")
 
-ggsave("Masks.jpg",plot = Masks ,path=here::here("images"), width = 17, height = 10)  
-  knitr::include_graphics(here::here("images", "Masks.jpg"))
 
-```
-```{r voting_map, out.width="100%"}
-knitr::include_graphics(here::here("images", "2016ElectionMap_v2.png"))
 ```
 
 The image above highlights some interesting dynamics. There is seems to be a acceptance(>50%) of masks in most regions of the US,specifically the west and east coastswhere mask acceptance is greater than 75% on average. However we notice that the 'Deep South' (exclusing Texas), 'Midwest', 'Deep North' and 'Mountain West Regions' so a much greater reluctance to accept mask usage, with some regions actually be opposed to mask usage(-0.25% acceptance). If we compare this to a map exploring how states voted we begin to see a rather interesting dynamic. There seems to be a higher acceptance of mask usage amongst states that voted Democrat over Republican states. This is in line with messaging from leaders within the two parties.Democratic leaders have been more vocal about the importance of face masks. Many Democratic governors have made it mandatory to wear masks in public. Joe Biden, the presumptive Democratic presidential nominee, said if he were in the White House, he would “do everything possible to make it required that people have to wear masks in public”.
@@ -301,8 +296,7 @@ comob <- ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death_ra
         theme(title = element_text(size=8, colour="black"))
 
 #comob
-ggsave("comord.jpg",plot=comob,path=here::here("images"),width = 20,height = 13)
-knitr::include_graphics(here::here("images", "comord.jpg"))
+
 ```
 
 ## Plot 2 ICU
@@ -344,9 +338,7 @@ icu <-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_
         theme_bw()+
         theme(title = element_text(size=8, colour="black"))
    
-#icu
-ggsave("icu.jpg",plot=icu,path=here::here("images"),width = 20,height = 13)
-knitr::include_graphics(here::here("images", "icu.jpg"))
+
 ```
 
 ## Findings
