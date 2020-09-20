@@ -104,16 +104,16 @@ disqusShortname = ""
       url = "Projects/bank"
 
     [[params.tiles.showcase]]
-      title = "Covid-19: Who is wearing masks? And dealth rate dynamics."
-      subtitle = "Graphical Analysis of USA COVID-19 Data"
-      image = "nyc_mask.image.jpg"
-      url = "Projects/covid"
-
-    [[params.tiles.showcase]]
       title = "Cape Town AirBnB Pricing"
       subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
       image = "AirBnB.png"
       url = "Projects/airbnb"
+    
+    [[params.tiles.showcase]]
+      title = "Covid-19: Who is wearing masks? And dealth rate dynamics."
+      subtitle = "Graphical Analysis of USA COVID-19 Data"
+      image = "nyc_mask.image.jpg"
+      url = "Projects/covid"
 
  
 
@@ -126,17 +126,17 @@ disqusShortname = ""
     # For more informtion take a look at the README.
     # To add more blogs just copy and paste the code.
 
-  # Section Type Two
-  #[params.two]
-    #enable = true
-    #title = "Massa libero"
-    #subtitle = """Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. 
-    #Mauris aliquet magna magna sed nunc rhoncus pharetra. 
-    #Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. 
-    #Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero.
-    #Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus."""
-   # buttonText = "Get Started"
-    #url = "blogs"
+ Section Type Two
+  [params.two]
+    enable = true
+    title = "A bit about me"
+    subtitle = """Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. 
+    Mauris aliquet magna magna sed nunc rhoncus pharetra. 
+    Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. 
+    Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero.
+    Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus."""
+    buttonText = "Get Started"
+    url = "blogs"
 
 
   # Contact section
