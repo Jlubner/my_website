@@ -102,12 +102,6 @@ disqusShortname = ""
       subtitle = "Regression analysis and examination of high earning individuals"
       image = "Bank.money.jpg"
       url = "Projects/bank"
-
-    [[params.tiles.showcase]]
-      title = "Cape Town AirBnB Pricing"
-      subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
-      image = "AirBnB.png"
-      url = "Projects/airbnb"
     
     [[params.tiles.showcase]]
       title = "Covid-19: Who is wearing masks? And dealth rate dynamics."
@@ -116,10 +110,10 @@ disqusShortname = ""
       url = "Projects/covid"
       
       [[params.tiles.showcase]]
-      title = "TFL bike rentals."
-      subtitle = ""
-      image = "nyc_mask.image.jpg"
-      url = "Projects/covid"
+      title = "Cape Town AirBnB Pricing"
+      subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
+      image = "AirBnB.png"
+      url = "Projects/airbnb"
       
       
 
@@ -140,7 +134,7 @@ disqusShortname = ""
     title = "About:"
     subtitle = "This porfolio is to highlight a variety of statistical analysis conducted in R. I am currently reading for the LBS's MAM 2021 program after completing my undergraduate with a BSc in Mathematics,Statistics and Busines From LSE in 2019. I am now hoping to explore career opportunities where Big Data meets Business and Finance but till find a way to create a meaningful difference in areas of the wrold that need it most"
     buttonText = "Click to download CV"
-    url = "cv/index"
+    url = "cv"
 
 
   # Contact section
