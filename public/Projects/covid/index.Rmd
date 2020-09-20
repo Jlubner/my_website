@@ -150,6 +150,10 @@ p4 + labs(fill = "Mask acceptance, (Mostly Yes - Mostly No)",
 
 ```
 
+```{r ,add_image, out.width="100%"}
+knitr::include_graphics(here::here("public", "2016ElectionMap_v2.png"))
+```
+
 The image above highlights some interesting dynamics. There is seems to be a acceptance(>50%) of masks in most regions of the US,specifically the west and east coastswhere mask acceptance is greater than 75% on average. However we notice that the 'Deep South' (exclusing Texas), 'Midwest', 'Deep North' and 'Mountain West Regions' so a much greater reluctance to accept mask usage, with some regions actually be opposed to mask usage(-0.25% acceptance). If we compare this to a map exploring how states voted we begin to see a rather interesting dynamic. There seems to be a higher acceptance of mask usage amongst states that voted Democrat over Republican states. This is in line with messaging from leaders within the two parties.Democratic leaders have been more vocal about the importance of face masks. Many Democratic governors have made it mandatory to wear masks in public. Joe Biden, the presumptive Democratic presidential nominee, said if he were in the White House, he would “do everything possible to make it required that people have to wear masks in public”.
 
 In contrast, while many Republican leaders have also spoken out about the importance of masks, other top Republicans have been more hesitant to mandate masks, even as their states started to see surges of cases amid the reopening phases. The most obvious of these is Donald Trump himself who has suggested wearing a mask could be seen as a political statement against him and mocked Biden for wearing a mask in public. 
