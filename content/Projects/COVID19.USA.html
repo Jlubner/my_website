@@ -1,0 +1,859 @@
+<script src="COVID19.USA_files/kePrint/kePrint.js"></script>
+<link href="COVID19.USA_files/lightable/lightable.css" rel="stylesheet" />
+
+
+<p>#Exploring COVID-19 Mask Acceptanc rate and the dynaics of death as a percentage of the polutaion in the USA.</p>
+<div id="nyt-mask-use" class="section level2">
+<h2>NYT mask use</h2>
+<p>Github source for data <a href="https://github.com/nytimes/covid-19-data/tree/master/mask-use" class="uri">https://github.com/nytimes/covid-19-data/tree/master/mask-use</a></p>
+</div>
+<div id="getting-the-data" class="section level2">
+<h2>Getting the data</h2>
+<pre class="r"><code>#Source for data url &lt;- &quot;https://github.com/nytimes/covid-19-data/raw/master/mask-use/mask-use-by-county.csv&quot;
+
+nyt_mask_survey &lt;- read_csv(here::here(&quot;data&quot;, &quot;nyt_mask_survey.csv&quot;))
+
+nyt_mask_survey &lt;- nyt_mask_survey %&gt;%
+  clean_names() %&gt;% 
+  mutate(
+    mostly_yes= frequently+always,
+    mostly_no = never+rarely,
+    delta = mostly_yes-mostly_no
+  )
+
+glimpse(nyt_mask_survey)</code></pre>
+<pre><code>## Rows: 3,142
+## Columns: 9
+## $ countyfp   &lt;chr&gt; &quot;01001&quot;, &quot;01003&quot;, &quot;01005&quot;, &quot;01007&quot;, &quot;01009&quot;, &quot;01011&quot;, &quot;010…
+## $ never      &lt;dbl&gt; 0.053, 0.083, 0.067, 0.020, 0.053, 0.031, 0.102, 0.152, 0.…
+## $ rarely     &lt;dbl&gt; 0.074, 0.059, 0.121, 0.034, 0.114, 0.040, 0.053, 0.108, 0.…
+## $ sometimes  &lt;dbl&gt; 0.134, 0.098, 0.120, 0.096, 0.180, 0.144, 0.257, 0.130, 0.…
+## $ frequently &lt;dbl&gt; 0.295, 0.323, 0.201, 0.278, 0.194, 0.286, 0.137, 0.167, 0.…
+## $ always     &lt;dbl&gt; 0.444, 0.436, 0.491, 0.572, 0.459, 0.500, 0.451, 0.442, 0.…
+## $ mostly_yes &lt;dbl&gt; 0.739, 0.759, 0.692, 0.850, 0.653, 0.786, 0.588, 0.609, 0.…
+## $ mostly_no  &lt;dbl&gt; 0.127, 0.142, 0.188, 0.054, 0.167, 0.071, 0.155, 0.260, 0.…
+## $ delta      &lt;dbl&gt; 0.612, 0.617, 0.504, 0.796, 0.486, 0.715, 0.433, 0.349, 0.…</code></pre>
+</div>
+<div id="choropleth-map" class="section level2">
+<h2>Choropleth map</h2>
+<p>The FIPS code is a federal code that numbers states and territories of the US. It extends to the county level with an additional four digits, so every county in the US has a unique six-digit identifier, where the first two digits represent the state.</p>
+<p>We will be using Kieran Healy’s <code>socviz</code> package which among other things contains <code>county_map</code> and <code>county_data</code></p>
+<pre class="r"><code># America’s choropleths; use county_map that has all polygons 
+# and county data with demographics/election data from socviz datafile
+# The id field is the FIPS code for the county
+county_map %&gt;% 
+  sample_n(5)</code></pre>
+<pre><code>##     long      lat  order  hole piece            group    id
+## 1 431991  -570894  61117 FALSE     1 0500000US20043.1 20043
+## 2 760388 -1294867  72890 FALSE     1 0500000US22067.1 22067
+## 3 511511  -696696 100939 FALSE     1 0500000US29037.1 29037
+## 4 870400 -1078208  21393 FALSE     1 0500000US05077.1 05077
+## 5 275535  -247165 149428 FALSE     1 0500000US46127.1 46127</code></pre>
+<pre class="r"><code>county_data %&gt;%
+    sample_n(5)</code></pre>
+<pre><code>##      id             name state census_region      pop_dens   pop_dens4
+## 1 26159 Van Buren County    MI       Midwest [  100,  500) [118,71672]
+## 2 05103  Ouachita County    AR         South [   10,   50) [ 17,   45)
+## 3 18019     Clark County    IN       Midwest [  100,  500) [118,71672]
+## 4 51530 Buena Vista city    VA         South [  500, 1000) [118,71672]
+## 5 47045      Dyer County    TN         South [   50,  100) [ 45,  118)
+##     pop_dens6   pct_black    pop female white black travel_time land_area
+## 1 [ 82,  215) [ 2.0, 5.0)  75199   50.6  91.4   4.2        24.5     607.5
+## 2 [ 25,   45) [25.0,50.0)  24828   52.8  57.3  40.1        22.7     732.8
+## 3 [215,71672] [ 5.0,10.0) 114262   50.9  89.1   7.3        24.1     372.9
+## 4 [215,71672] [ 5.0,10.0)   6603   52.9  90.7   5.3        16.8       6.7
+## 5 [ 45,   82) [10.0,15.0)  37935   51.6  82.8  14.6        18.6     512.3
+##   hh_income su_gun4 su_gun6  fips votes_dem_2016 votes_gop_2016
+## 1     45129 [ 5, 8) [ 7, 8) 26159          13258          17890
+## 2     32015 [ 8,11) [ 8,10)  5103           4320           5347
+## 3     50496 [ 8,11) [ 8,10) 18019          18791          30012
+## 4     36591 [ 0, 5) [ 0, 4) 51530            693           1432
+## 5     38953 [ 8,11) [ 8,10) 47045           2815          10175
+##   total_votes_2016 per_dem_2016 per_gop_2016 diff_2016 per_dem_2012
+## 1            33213        0.399        0.539      4632        0.497
+## 2             9881        0.437        0.541      1027        0.449
+## 3            51104        0.368        0.587     11221        0.441
+## 4             2395        0.289        0.598       739        0.364
+## 5            13290        0.212        0.766      7360        0.272
+##   per_gop_2012 diff_2012 winner partywinner16 winner12 partywinner12 flipped
+## 1        0.492       148  Trump    Republican    Obama      Democrat     Yes
+## 2        0.535       890  Trump    Republican   Romney    Republican      No
+## 3        0.540      4647  Trump    Republican   Romney    Republican      No
+## 4        0.619       645  Trump    Republican   Romney    Republican      No
+## 5        0.719      6164  Trump    Republican   Romney    Republican      No</code></pre>
+<pre class="r"><code>glimpse(county_data)</code></pre>
+<pre><code>## Rows: 3,195
+## Columns: 32
+## $ id               &lt;chr&gt; &quot;0&quot;, &quot;01000&quot;, &quot;01001&quot;, &quot;01003&quot;, &quot;01005&quot;, &quot;01007&quot;, &quot;0…
+## $ name             &lt;chr&gt; NA, &quot;1&quot;, &quot;Autauga County&quot;, &quot;Baldwin County&quot;, &quot;Barbou…
+## $ state            &lt;fct&gt; NA, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, …
+## $ census_region    &lt;fct&gt; NA, South, South, South, South, South, South, South,…
+## $ pop_dens         &lt;fct&gt; &quot;[   50,  100)&quot;, &quot;[   50,  100)&quot;, &quot;[   50,  100)&quot;, &quot;…
+## $ pop_dens4        &lt;fct&gt; &quot;[ 45,  118)&quot;, &quot;[ 45,  118)&quot;, &quot;[ 45,  118)&quot;, &quot;[118,7…
+## $ pop_dens6        &lt;fct&gt; &quot;[ 82,  215)&quot;, &quot;[ 82,  215)&quot;, &quot;[ 82,  215)&quot;, &quot;[ 82, …
+## $ pct_black        &lt;fct&gt; &quot;[10.0,15.0)&quot;, &quot;[25.0,50.0)&quot;, &quot;[15.0,25.0)&quot;, &quot;[ 5.0,…
+## $ pop              &lt;int&gt; 318857056, 4849377, 55395, 200111, 26887, 22506, 577…
+## $ female           &lt;dbl&gt; 50.8, 51.5, 51.5, 51.2, 46.5, 46.0, 50.6, 45.2, 53.4…
+## $ white            &lt;dbl&gt; 77.7, 69.8, 78.1, 87.3, 50.2, 76.3, 96.0, 27.2, 54.3…
+## $ black            &lt;dbl&gt; 13.2, 26.6, 18.4, 9.5, 47.6, 22.1, 1.8, 69.9, 43.6, …
+## $ travel_time      &lt;dbl&gt; 25.5, 24.2, 26.2, 25.9, 24.6, 27.6, 33.9, 26.9, 24.0…
+## $ land_area        &lt;dbl&gt; 3531905, 50645, 594, 1590, 885, 623, 645, 623, 777, …
+## $ hh_income        &lt;int&gt; 53046, 43253, 53682, 50221, 32911, 36447, 44145, 320…
+## $ su_gun4          &lt;fct&gt; NA, NA, &quot;[11,54]&quot;, &quot;[11,54]&quot;, &quot;[ 5, 8)&quot;, &quot;[11,54]&quot;, …
+## $ su_gun6          &lt;fct&gt; NA, NA, &quot;[10,12)&quot;, &quot;[10,12)&quot;, &quot;[ 7, 8)&quot;, &quot;[10,12)&quot;, …
+## $ fips             &lt;dbl&gt; 0, 1000, 1001, 1003, 1005, 1007, 1009, 1011, 1013, 1…
+## $ votes_dem_2016   &lt;int&gt; NA, NA, 5908, 18409, 4848, 1874, 2150, 3530, 3716, 1…
+## $ votes_gop_2016   &lt;int&gt; NA, NA, 18110, 72780, 5431, 6733, 22808, 1139, 4891,…
+## $ total_votes_2016 &lt;int&gt; NA, NA, 24661, 94090, 10390, 8748, 25384, 4701, 8685…
+## $ per_dem_2016     &lt;dbl&gt; NA, NA, 0.2396, 0.1957, 0.4666, 0.2142, 0.0847, 0.75…
+## $ per_gop_2016     &lt;dbl&gt; NA, NA, 0.734, 0.774, 0.523, 0.770, 0.899, 0.242, 0.…
+## $ diff_2016        &lt;int&gt; NA, NA, 12202, 54371, 583, 4859, 20658, 2391, 1175, …
+## $ per_dem_2012     &lt;dbl&gt; NA, NA, 0.266, 0.216, 0.513, 0.262, 0.123, 0.763, 0.…
+## $ per_gop_2012     &lt;dbl&gt; NA, NA, 0.726, 0.774, 0.483, 0.731, 0.865, 0.235, 0.…
+## $ diff_2012        &lt;int&gt; NA, NA, 11012, 47443, 334, 3931, 17780, 2808, 714, 1…
+## $ winner           &lt;chr&gt; NA, NA, &quot;Trump&quot;, &quot;Trump&quot;, &quot;Trump&quot;, &quot;Trump&quot;, &quot;Trump&quot;,…
+## $ partywinner16    &lt;chr&gt; NA, NA, &quot;Republican&quot;, &quot;Republican&quot;, &quot;Republican&quot;, &quot;R…
+## $ winner12         &lt;chr&gt; NA, NA, &quot;Romney&quot;, &quot;Romney&quot;, &quot;Obama&quot;, &quot;Romney&quot;, &quot;Romn…
+## $ partywinner12    &lt;chr&gt; NA, NA, &quot;Republican&quot;, &quot;Republican&quot;, &quot;Democrat&quot;, &quot;Rep…
+## $ flipped          &lt;chr&gt; NA, NA, &quot;No&quot;, &quot;No&quot;, &quot;Yes&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;No&quot;, &quot;…</code></pre>
+<pre class="r"><code># we have data on 3195 FIPS....
+
+glimpse(county_map)</code></pre>
+<pre><code>## Rows: 191,382
+## Columns: 7
+## $ long  &lt;dbl&gt; 1225889, 1235324, 1244873, 1244129, 1272010, 1276797, 1273832, …
+## $ lat   &lt;dbl&gt; -1275020, -1274008, -1272331, -1267515, -1262889, -1295514, -12…
+## $ order &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, …
+## $ hole  &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, …
+## $ piece &lt;fct&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+## $ group &lt;fct&gt; 0500000US01001.1, 0500000US01001.1, 0500000US01001.1, 0500000US…
+## $ id    &lt;chr&gt; &quot;01001&quot;, &quot;01001&quot;, &quot;01001&quot;, &quot;01001&quot;, &quot;01001&quot;, &quot;01001&quot;, &quot;01001&quot;, …</code></pre>
+<pre class="r"><code># ... but to create a map, we translate these 3195 counties to 191,382 polygons!</code></pre>
+</div>
+<div id="joing-the-files" class="section level2">
+<h2>Joing the files</h2>
+<p>We have three files</p>
+<ol style="list-style-type: decimal">
+<li><code>nyt_mask_survey</code>, our NYT survey data,</li>
+<li><code>county_map</code> that has all polygons that define a county</li>
+<li><code>county_data</code> with demographics/election data.</li>
+</ol>
+<pre class="r"><code>county_full &lt;- left_join(county_map, county_data, by = &quot;id&quot;)
+
+county_masks_full &lt;- left_join(county_full, nyt_mask_survey, 
+                                by = c(&quot;id&quot;=&quot;countyfp&quot;))</code></pre>
+</div>
+<div id="building-our-choropleth-plot" class="section level2">
+<h2>Building our choropleth plot</h2>
+<pre class="r"><code>p &lt;- ggplot(data = county_masks_full,
+            mapping = aes(x = long, y = lat,
+                          fill = delta, 
+                          group = group))
+
+p1 &lt;- p + 
+  geom_polygon(color = &quot;gray90&quot;, size = 0.05) + 
+  coord_equal()
+
+
+
+p2 &lt;- p1 + 
+  scale_fill_gradient(low = &#39;#ffffcc&#39;, high= &#39;#006837&#39;)
+
+p3 &lt;- p1 + 
+  scale_fill_gradient2()
+
+# get different colours from https://colorbrewer2.org/
+# the one shown here is https://colorbrewer2.org/#type=diverging&amp;scheme=BrBG&amp;n=6
+p4 &lt;- p1 + 
+  scale_fill_gradientn(colours = c(&#39;#8c510a&#39;,&#39;#d8b365&#39;,&#39;#f6e8c3&#39;,&#39;#c7eae5&#39;,&#39;#5ab4ac&#39;,&#39;#01665e&#39;))
+
+
+Masks &lt;-p4 + labs(fill = &quot;Mask acceptance, (Mostly Yes - Mostly No)&quot;, 
+          caption = &quot;“Estimates from The New York Times, based on roughly 250,000 interviews \nconducted by Dynata from July 2 to July 14, 2020”&quot;) +
+  guides(fill = guide_legend(nrow = 1)) + 
+  theme_map() + 
+  theme(legend.position = &quot;bottom&quot;)
+
+ggsave(&quot;Masks.jpg&quot;,plot = Masks ,path=here::here(&quot;images&quot;), width = 17, height = 10)  
+  knitr::include_graphics(here::here(&quot;images&quot;, &quot;Masks.jpg&quot;))</code></pre>
+<p><img src="/Users/jasonleelubner/Desktop/my_portfolio/images/Masks.jpg" width="2550" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>knitr::include_graphics(here::here(&quot;images&quot;, &quot;2016ElectionMap_v2.png&quot;))</code></pre>
+<p><img src="/Users/jasonleelubner/Desktop/my_portfolio/images/2016ElectionMap_v2.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>The image above highlights some interesting dynamics. There is seems to be a acceptance(&gt;50%) of masks in most regions of the US,specifically the west and east coastswhere mask acceptance is greater than 75% on average. However we notice that the ‘Deep South’ (exclusing Texas), ‘Midwest’, ‘Deep North’ and ‘Mountain West Regions’ so a much greater reluctance to accept mask usage, with some regions actually be opposed to mask usage(-0.25% acceptance). If we compare this to a map exploring how states voted we begin to see a rather interesting dynamic. There seems to be a higher acceptance of mask usage amongst states that voted Democrat over Republican states. This is in line with messaging from leaders within the two parties.Democratic leaders have been more vocal about the importance of face masks. Many Democratic governors have made it mandatory to wear masks in public. Joe Biden, the presumptive Democratic presidential nominee, said if he were in the White House, he would “do everything possible to make it required that people have to wear masks in public”.</p>
+<p>In contrast, while many Republican leaders have also spoken out about the importance of masks, other top Republicans have been more hesitant to mandate masks, even as their states started to see surges of cases amid the reopening phases. The most obvious of these is Donald Trump himself who has suggested wearing a mask could be seen as a political statement against him and mocked Biden for wearing a mask in public.</p>
+<p>We now explore some further dynamics to understand if there are any relationships between country household income, population, and % who voted republican in 2016</p>
+</div>
+<div id="checking-for-relationships" class="section level2">
+<h2>Checking for relationships</h2>
+<pre class="r"><code>county_masks_full %&gt;% 
+  select(hh_income, pop, per_gop_2016, delta) %&gt;% 
+  GGally::ggpairs()+
+  theme_minimal()</code></pre>
+<p><img src="COVID19.USA_files/figure-html/ggpairs-1.png" width="648" style="display: block; margin: auto;" />
+From this we can see a rather strong negative correlation between the Delta(difference in yes vs no) is fairly strongly negatively correlated to percentage of GOP(Republican) voter. This confirms our suspicions that Republican denominated states are less likely to wear masks in comparison to the democrat counterparts. The relationships between household income and population also reflect a slight positive correlations which reflects that more developed states, are more likely to wear masks, and this may be viewed that bigger cities with higher household income are more well educated and informed on the risks of COVID 19.</p>
+</div>
+<div id="cdc-covid-19-public-use-data" class="section level1">
+<h1>CDC COVID-19 Public Use Data</h1>
+<p>Using the <a href="https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf">CDC Covid-19 Case Surveillance Data</a>. There are well over 3 million entries of individual, de-identified patient data. Since this is a large file, we use <code>vroom</code> to load it and keep <code>cache=TRUE</code> in the chunk options.</p>
+<pre class="r"><code># URL link to CDC to download data
+url &lt;- &quot;https://data.cdc.gov/api/views/vbim-akqf/rows.csv?accessType=DOWNLOAD&quot;
+
+covid_data &lt;- vroom(url)%&gt;%
+  clean_names()</code></pre>
+<p>Given the data we have, the task is to produce two graphs that show death % rate:</p>
+<ol style="list-style-type: decimal">
+<li>by age group, sex, and whether the patient had co-morbidities or not</li>
+<li>by age group, sex, and whether the patient was admited to Intensive Care Unit (ICU) or not.</li>
+</ol>
+<pre class="r"><code>knitr::include_graphics(here::here(&quot;images&quot;, &quot;covid_death_rate_comorbidities.png&quot;))</code></pre>
+<p><img src="/Users/jasonleelubner/Desktop/my_portfolio/images/covid_death_rate_comorbidities.png" width="100%" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>knitr::include_graphics(here::here(&quot;images&quot;, &quot;covid_death_rate_icu.png&quot;))</code></pre>
+<p><img src="/Users/jasonleelubner/Desktop/my_portfolio/images/covid_death_rate_icu.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>We examine the data using skim, head, and glimpse.</p>
+<pre class="r"><code># check data
+skim(covid_data)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-3">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">covid_data</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">3662325</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">11</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">character</td>
+<td align="left">8</td>
+</tr>
+<tr class="odd">
+<td align="left">Date</td>
+<td align="left">3</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">min</th>
+<th align="right">max</th>
+<th align="right">empty</th>
+<th align="right">n_unique</th>
+<th align="right">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">current_status</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">13</td>
+<td align="right">25</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">sex</td>
+<td align="right">18</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">5</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">age_group</td>
+<td align="right">94</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">13</td>
+<td align="right">0</td>
+<td align="right">10</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">race_and_ethnicity_combined</td>
+<td align="right">6</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">52</td>
+<td align="right">0</td>
+<td align="right">8</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">hosp_yn</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">icu_yn</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">death_yn</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">medcond_yn</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: Date</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="left">min</th>
+<th align="left">max</th>
+<th align="left">median</th>
+<th align="right">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">cdc_report_dt</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">2020-01-01</td>
+<td align="left">2020-08-16</td>
+<td align="left">2020-06-23</td>
+<td align="right">225</td>
+</tr>
+<tr class="even">
+<td align="left">pos_spec_dt</td>
+<td align="right">2331742</td>
+<td align="right">0.36</td>
+<td align="left">2020-01-01</td>
+<td align="left">2020-08-28</td>
+<td align="left">2020-05-16</td>
+<td align="right">205</td>
+</tr>
+<tr class="odd">
+<td align="left">onset_dt</td>
+<td align="right">1772698</td>
+<td align="right">0.52</td>
+<td align="left">2020-01-01</td>
+<td align="left">2020-08-30</td>
+<td align="left">2020-06-06</td>
+<td align="right">243</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>head(covid_data)</code></pre>
+<pre><code>## # A tibble: 6 x 11
+##   cdc_report_dt pos_spec_dt onset_dt   current_status sex   age_group
+##   &lt;date&gt;        &lt;date&gt;      &lt;date&gt;     &lt;chr&gt;          &lt;chr&gt; &lt;chr&gt;    
+## 1 2020-03-03    2020-03-03  NA         Laboratory-co… Male  0 - 9 Ye…
+## 2 2020-03-03    2020-03-03  NA         Laboratory-co… Fema… 0 - 9 Ye…
+## 3 2020-04-07    2020-03-03  2020-03-03 Laboratory-co… Unkn… 0 - 9 Ye…
+## 4 2020-08-04    2020-08-04  NA         Probable Case  Male  0 - 9 Ye…
+## 5 2020-07-28    2020-08-04  2020-07-28 Laboratory-co… Male  0 - 9 Ye…
+## 6 2020-08-03    2020-08-04  2020-08-03 Laboratory-co… Male  0 - 9 Ye…
+## # … with 5 more variables: race_and_ethnicity_combined &lt;chr&gt;, hosp_yn &lt;chr&gt;,
+## #   icu_yn &lt;chr&gt;, death_yn &lt;chr&gt;, medcond_yn &lt;chr&gt;</code></pre>
+<pre class="r"><code>glimpse(covid_data)</code></pre>
+<pre><code>## Rows: 3,662,325
+## Columns: 11
+## $ cdc_report_dt               &lt;date&gt; 2020-03-03, 2020-03-03, 2020-04-07, 2020…
+## $ pos_spec_dt                 &lt;date&gt; 2020-03-03, 2020-03-03, 2020-03-03, 2020…
+## $ onset_dt                    &lt;date&gt; NA, NA, 2020-03-03, NA, 2020-07-28, 2020…
+## $ current_status              &lt;chr&gt; &quot;Laboratory-confirmed case&quot;, &quot;Laboratory-…
+## $ sex                         &lt;chr&gt; &quot;Male&quot;, &quot;Female&quot;, &quot;Unknown&quot;, &quot;Male&quot;, &quot;Mal…
+## $ age_group                   &lt;chr&gt; &quot;0 - 9 Years&quot;, &quot;0 - 9 Years&quot;, &quot;0 - 9 Year…
+## $ race_and_ethnicity_combined &lt;chr&gt; &quot;Unknown&quot;, &quot;Unknown&quot;, &quot;Unknown&quot;, &quot;Unknown…
+## $ hosp_yn                     &lt;chr&gt; &quot;Missing&quot;, &quot;Missing&quot;, &quot;No&quot;, &quot;Missing&quot;, &quot;N…
+## $ icu_yn                      &lt;chr&gt; &quot;Missing&quot;, &quot;Missing&quot;, &quot;Missing&quot;, &quot;Missing…
+## $ death_yn                    &lt;chr&gt; &quot;Missing&quot;, &quot;Missing&quot;, &quot;Missing&quot;, &quot;Missing…
+## $ medcond_yn                  &lt;chr&gt; &quot;Missing&quot;, &quot;Missing&quot;, &quot;Missing&quot;, &quot;Missing…</code></pre>
+<p>And we notice that there are unknown and missing values. Since we will be using sex, age_group, medcond_yn, icu_yn, and finally death_yn in our ggplot, we need to look at the frequencies of these values.</p>
+<pre class="r"><code># look at frequencies to see how to clean the data
+library(kableExtra)
+
+# sex and its frequencies table
+sex_freq &lt;- table(covid_data$sex) %&gt;% 
+  as.data.frame() %&gt;% 
+  rename(Sex_type=Var1)
+kbl(sex_freq) %&gt;%   
+  kable_styling(full_width = F) %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;))</code></pre>
+<table class="table table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Sex_type
+</th>
+<th style="text-align:right;">
+Freq
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:right;">
+1850866
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:right;">
+1713591
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Missing
+</td>
+<td style="text-align:right;">
+58145
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Other
+</td>
+<td style="text-align:right;">
+97
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:right;">
+39608
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># age group and its frequencies table
+age_group_freq &lt;- table(covid_data$age_group) %&gt;% 
+  as.data.frame() %&gt;% 
+  rename(Age_group=Var1)
+kbl(age_group_freq ) %&gt;%   
+  kable_styling(full_width = F) %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;))</code></pre>
+<table class="table table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Age_group
+</th>
+<th style="text-align:right;">
+Freq
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+0 - 9 Years
+</td>
+<td style="text-align:right;">
+108383
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+10 - 19 Years
+</td>
+<td style="text-align:right;">
+271652
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+20 - 29 Years
+</td>
+<td style="text-align:right;">
+684226
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+30 - 39 Years
+</td>
+<td style="text-align:right;">
+622332
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40 - 49 Years
+</td>
+<td style="text-align:right;">
+580660
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+50 - 59 Years
+</td>
+<td style="text-align:right;">
+564999
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+60 - 69 Years
+</td>
+<td style="text-align:right;">
+396925
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+70 - 79 Years
+</td>
+<td style="text-align:right;">
+222836
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+80+ Years
+</td>
+<td style="text-align:right;">
+206172
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:right;">
+4046
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># co-morbidities and its frequencies table
+medcond_yn_freq &lt;- table(covid_data$medcond_yn) %&gt;% 
+  as.data.frame() %&gt;% 
+  rename(Whether_comorbidities=Var1)
+kbl(medcond_yn_freq) %&gt;%   
+  kable_styling(full_width = F) %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;))</code></pre>
+<table class="table table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Whether_comorbidities
+</th>
+<th style="text-align:right;">
+Freq
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Missing
+</td>
+<td style="text-align:right;">
+2350907
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:right;">
+300399
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:right;">
+521399
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:right;">
+489620
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># icu and its frequencies table
+icu_freq &lt;- table(covid_data$icu_yn)%&gt;% 
+  as.data.frame() %&gt;% 
+  rename(Whether_ICU=Var1)
+kbl(icu_freq) %&gt;%   
+  kable_styling(full_width = F) %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;))</code></pre>
+<table class="table table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Whether_ICU
+</th>
+<th style="text-align:right;">
+Freq
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Missing
+</td>
+<td style="text-align:right;">
+2312984
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:right;">
+405791
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:right;">
+897276
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:right;">
+46274
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># death and its frequencies table
+death_yn_freq &lt;- table(covid_data$death_yn) %&gt;% 
+  as.data.frame() %&gt;% 
+  rename(Whether_dead=Var1)
+kbl(death_yn_freq) %&gt;%   
+  kable_styling(full_width = F) %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;, &quot;responsive&quot;))</code></pre>
+<table class="table table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Whether_dead
+</th>
+<th style="text-align:right;">
+Freq
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Missing
+</td>
+<td style="text-align:right;">
+1231997
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:right;">
+1644402
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:right;">
+660056
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:right;">
+125870
+</td>
+</tr>
+</tbody>
+</table>
+<p>Now we know that there are observations that have missing, other, unknown values.</p>
+<div id="plot-1-co-morbidities" class="section level2">
+<h2>Plot 1 Co-morbidities</h2>
+<p>Before we plot, we need to clean the data and add a new column of death rate by age_group, sex, and whether there is presence of co-morbidities.</p>
+<pre class="r"><code># clean the data
+covid_data_cleaned1 &lt;- covid_data %&gt;% 
+  filter(death_yn == &quot;Yes&quot; | death_yn == &quot;No&quot;) %&gt;% 
+  filter(sex == &quot;Female&quot; | sex == &quot;Male&quot;) %&gt;% 
+  filter(age_group != &quot;Unknown&quot;) %&gt;% 
+  filter(medcond_yn ==&quot;No&quot;| medcond_yn == &quot;Yes&quot;)  %&gt;% 
+  select (sex, age_group,medcond_yn, death_yn) %&gt;%
+  group_by(age_group,sex,medcond_yn) %&gt;%
+  summarize(death_y = count(death_yn==&quot;Yes&quot;),death_n = count(death_yn==&quot;No&quot;),total = n()) %&gt;% 
+  mutate(death_rate=death_y/total)   %&gt;% 
+  mutate(death_rate_label = round(100*death_rate,1)) %&gt;%  # this makes it in percentage
+  arrange(desc(death_rate)) 
+
+# we also need to reorder the medcond_yn and add label to it (for the plot)
+covid_data_cleaned1$medcond_yn&lt;- factor(covid_data_cleaned1$medcond_yn, 
+                                        levels = c(&quot;Yes&quot;,&quot;No&quot;),
+                                        labels=c(&quot;With comorbidities&quot;,&quot;Without comorbidities&quot;))
+head(covid_data_cleaned1) </code></pre>
+<pre><code>## # A tibble: 6 x 8
+## # Groups:   age_group, sex [5]
+##   age_group  sex   medcond_yn  death_y death_n total death_rate death_rate_label
+##   &lt;chr&gt;      &lt;chr&gt; &lt;fct&gt;         &lt;int&gt;   &lt;int&gt; &lt;int&gt;      &lt;dbl&gt;            &lt;dbl&gt;
+## 1 80+ Years  Male  With comor…   12389    6028 18417      0.673             67.3
+## 2 80+ Years  Fema… With comor…   15059   12002 27061      0.556             55.6
+## 3 70 - 79 Y… Male  With comor…    9170   11287 20457      0.448             44.8
+## 4 70 - 79 Y… Fema… With comor…    6497   12358 18855      0.345             34.5
+## 5 80+ Years  Male  Without co…     259     631   890      0.291             29.1
+## 6 60 - 69 Y… Male  With comor…    7018   20694 27712      0.253             25.3</code></pre>
+<pre class="r"><code># FYI: Here we can also use the tally() function
+# group_by(sex, age_group,medcond_yn,death_yn) %&gt;% tally()</code></pre>
+<pre class="r"><code>library(scales)
+comob &lt;- ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death_rate_label))+
+         geom_col(fill=&quot;#697aa1&quot;,alpha=0.8)+
+         coord_flip()+
+         facet_grid(medcond_yn~sex)+
+         geom_text( position = position_dodge(1), 
+                    hjust = -0.25, 
+                    size = 3) + 
+        labs(x=&quot;&quot;,y=&quot;&quot;,
+             title = &quot;Covid death % by age group, sex and presence of co-morbidities&quot;,
+             caption = &quot;Source:CDC&quot;) +
+        scale_y_continuous(labels = scales::percent,limits=c(0,0.75))+ 
+        theme_bw()+
+        theme(title = element_text(size=8, colour=&quot;black&quot;))
+
+#comob
+ggsave(&quot;comord.jpg&quot;,plot=comob,path=here::here(&quot;images&quot;),width = 20,height = 13)
+knitr::include_graphics(here::here(&quot;images&quot;, &quot;comord.jpg&quot;))</code></pre>
+<p><img src="/Users/jasonleelubner/Desktop/my_portfolio/images/comord.jpg" width="3000" style="display: block; margin: auto;" /></p>
+</div>
+<div id="plot-2-icu" class="section level2">
+<h2>Plot 2 ICU</h2>
+<p>For plot 2, we apply the same logic of cleaning and plotting, just slightly modifying the facet variable and the color of fill.</p>
+<pre class="r"><code># clean the data
+covid_data_cleaned2 &lt;- covid_data %&gt;% 
+  # filter(current_status == &#39;Laboratory-confirmed case&#39;) %&gt;% 
+  filter(death_yn == &quot;Yes&quot; | death_yn == &quot;No&quot;) %&gt;% 
+  filter(sex == &quot;Female&quot; | sex == &quot;Male&quot;) %&gt;% 
+  filter(age_group != &quot;Unknown&quot;) %&gt;% 
+  filter(icu_yn ==&quot;No&quot;| icu_yn == &quot;Yes&quot;)  %&gt;% 
+  select (sex, age_group,icu_yn, death_yn) %&gt;%
+  group_by(age_group,sex,icu_yn) %&gt;%
+  summarize(death_y = count(death_yn==&quot;Yes&quot;),death_n = count(death_yn==&quot;No&quot;),total = n()) %&gt;% 
+  mutate(death_rate=death_y/total)   %&gt;% 
+  mutate(death_rate_label = round(100*death_rate,1)) %&gt;% # this makes it in percentage
+  arrange(desc(death_rate))
+
+#covid_data_cleaned2
+
+# we need to reorder the category
+covid_data_cleaned2$icu_yn&lt;- factor(covid_data_cleaned2$icu_yn, 
+                                    levels = c(&quot;Yes&quot;,&quot;No&quot;),
+                                    labels = c(&quot;Admitted to ICU&quot;,&quot;No ICU&quot;))
+
+#why the numbers are different but close?
+icu &lt;-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_label))+
+         geom_col(fill=&quot;#ff9582&quot;,alpha=0.7)+
+         coord_flip()+
+         facet_grid(icu_yn~sex)+
+         geom_text(position = position_dodge(1), 
+                    hjust = -0.25, 
+                    size = 3) +
+        labs(x=&quot;&quot;,y=&quot;&quot;,
+             title = &quot;Covid death % by age group, sex and whether patient was admitted to ICU&quot;,
+             caption = &quot;Source:CDC&quot;) +
+        scale_y_continuous(labels = scales::percent,limits=c(0,0.9))+
+        theme_bw()+
+        theme(title = element_text(size=8, colour=&quot;black&quot;))
+   
+#icu
+ggsave(&quot;icu.jpg&quot;,plot=icu,path=here::here(&quot;images&quot;),width = 20,height = 13)
+knitr::include_graphics(here::here(&quot;images&quot;, &quot;icu.jpg&quot;))</code></pre>
+<p><img src="/Users/jasonleelubner/Desktop/my_portfolio/images/icu.jpg" width="3000" style="display: block; margin: auto;" /></p>
+</div>
+<div id="findings" class="section level2">
+<h2>Findings</h2>
+<p>The first plot shows that overall as patients age, death rate also grows. And among patients with co-morbidities, death rates are higher. It is noteworthy that the death rate is considerably high among the group of male patients aged above 70 years old with co-morbidities (above 70%). While for the group of male and female patients aged between 10 and 19 without co-morbidities, the death rate is close to 0%. But for children under the age of 9, death rate goes up to 0.1% even without co-morbidities.<br />
+The second plot tells a similar story. As patients age, death rate increases. And as expected, patients admitted to ICU are likely to experience more severe symptoms and hence higher death rate. The gender difference we observed from the first plot still holds true.<br />
+When we investigate the death rate across these two plots, it is obvious among the group of same gender and age tier,if not suffer from both, those with co-morbidities are more likely to survive than those admitted into ICU.</p>
+</div>
+</div>
+<div id="details" class="section level1">
+<h1>Details</h1>
+<ul>
+<li>Who did you collaborate with: Ruchen Shangguan, Fillipo De Bortoli, Jason Lubner, Marie Cordes, Sammy Chen</li>
+<li>Approximately how much time did you spend on this problem set: ANSWER HERE</li>
+<li>What, if anything, gave you the most trouble: ANSWER HERE</li>
+</ul>
+</div>

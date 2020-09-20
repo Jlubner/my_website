@@ -47,17 +47,17 @@ disqusShortname = ""
       name = "Home"
       url = "#"
 
-    #[[params.navigation.links]]
-     # name = "Blogs"
-      #url = "blogs"
+    [[params.navigation.links]]
+      name = "Biography"
+      url = "Projects/bio"
 
     [[params.navigation.links]]
-     # name = "Generic Blog"
-      #url = "blogs/ipsum"
+      name = "Salary Model"
+      url = "Projects/bank"
 
     [[params.navigation.links]]
-     # name = "Elements"
-     # url = "elements.html"
+      name = "COVID-19: Exploration"
+      url = "Projects/covid"
 
     # Add custom links here by uncommenting code below. To remove links just delete
     # the [[params.navigation.links]] map associated with that link. Copy and paste
@@ -109,11 +109,11 @@ disqusShortname = ""
       image = "nyc_mask.image.jpg"
       url = "Projects/covid"
 
-    #[[params.tiles.showcase]]
-      #title = "Cape Town AirBnB Pricing"
-      #subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
-      #image = "AirBnB.png"
-      #url = "Project/airbnb"
+    [[params.tiles.showcase]]
+      title = "Cape Town AirBnB Pricing"
+      subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
+      image = "AirBnB.png"
+      url = "Projects/airbnb"
 
  
 
@@ -141,7 +141,6 @@ disqusShortname = ""
 
   # Contact section
   [params.contact]
-    labe="Get In Touch"
     enable = true
     buttonSend = "Send message"
     buttonClear = "Clear"
@@ -157,7 +156,7 @@ disqusShortname = ""
     # - send a dummy email yourself to confirm your account
     # - click the confirm link in the email from www.formspree.io
     # - you're done. Happy mailing!
-    # formEmail = "example@domain.com"
+    formEmail = "jlubner.mam2021@london.edu"
 
     # Contact Section
     # You can add multiple emails, phone numbers, or addresses
