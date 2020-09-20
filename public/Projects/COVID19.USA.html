@@ -1,19 +1,5 @@
----
-title: "NYT Mask Use Acceptance"
-author: "Study Group 14 and Kostis Christodoulou"
-date: "2020-09-20"
-output:
-  html_document:
-    highlight: zenburn
-    theme: flatly
-    toc: yes
-    toc_float: yes
-  word_document:
-    toc: yes
----
-
-<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
-<link href="/rmarkdown-libs/lightable/lightable.css" rel="stylesheet" />
+<script src="COVID19.USA_files/kePrint/kePrint.js"></script>
+<link href="COVID19.USA_files/lightable/lightable.css" rel="stylesheet" />
 
 
 <p>#Exploring COVID-19 Mask Acceptanc rate and the dynaics of death as a percentage of the polutaion in the USA.</p>
@@ -57,44 +43,44 @@ glimpse(nyt_mask_survey)</code></pre>
 # The id field is the FIPS code for the county
 county_map %&gt;% 
   sample_n(5)</code></pre>
-<pre><code>##      long      lat  order  hole piece            group    id
-## 1 -801342 -2090767   7625 FALSE     1 0500000US02105.1 02105
-## 2  449038  -647998  62723 FALSE     1 0500000US20209.1 20209
-## 3 1735291  -567746 181190 FALSE     1 0500000US54025.1 54025
-## 4 1212321  -251160  56133 FALSE     1 0500000US18087.1 18087
-## 5 1231183  -762071  64506 FALSE     1 0500000US21061.1 21061</code></pre>
+<pre><code>##     long      lat  order  hole piece            group    id
+## 1 431991  -570894  61117 FALSE     1 0500000US20043.1 20043
+## 2 760388 -1294867  72890 FALSE     1 0500000US22067.1 22067
+## 3 511511  -696696 100939 FALSE     1 0500000US29037.1 29037
+## 4 870400 -1078208  21393 FALSE     1 0500000US05077.1 05077
+## 5 275535  -247165 149428 FALSE     1 0500000US46127.1 46127</code></pre>
 <pre class="r"><code>county_data %&gt;%
     sample_n(5)</code></pre>
-<pre><code>##      id            name state census_region      pop_dens   pop_dens4
-## 1 48071 Chambers County    TX         South [   50,  100) [ 45,  118)
-## 2 27123   Ramsey County    MN       Midwest [ 1000, 5000) [118,71672]
-## 3 12071      Lee County    FL         South [  500, 1000) [118,71672]
-## 4 05009    Boone County    AR         South [   50,  100) [ 45,  118)
-## 5 01071  Jackson County    AL         South [   10,   50) [ 45,  118)
+<pre><code>##      id             name state census_region      pop_dens   pop_dens4
+## 1 26159 Van Buren County    MI       Midwest [  100,  500) [118,71672]
+## 2 05103  Ouachita County    AR         South [   10,   50) [ 17,   45)
+## 3 18019     Clark County    IN       Midwest [  100,  500) [118,71672]
+## 4 51530 Buena Vista city    VA         South [  500, 1000) [118,71672]
+## 5 47045      Dyer County    TN         South [   50,  100) [ 45,  118)
 ##     pop_dens6   pct_black    pop female white black travel_time land_area
-## 1 [ 45,   82) [ 5.0,10.0)  38145   49.6  87.9   8.3        31.5       597
-## 2 [215,71672] [10.0,15.0) 532655   51.4  70.9  11.6        22.6       152
-## 3 [215,71672] [ 5.0,10.0) 679513   50.9  87.2   9.0        26.9       785
-## 4 [ 45,   82) [ 0.0, 2.0)  37196   50.7  96.5   0.4        19.7       590
-## 5 [ 45,   82) [ 2.0, 5.0)  52665   50.7  91.8   3.4        26.4      1078
+## 1 [ 82,  215) [ 2.0, 5.0)  75199   50.6  91.4   4.2        24.5     607.5
+## 2 [ 25,   45) [25.0,50.0)  24828   52.8  57.3  40.1        22.7     732.8
+## 3 [215,71672] [ 5.0,10.0) 114262   50.9  89.1   7.3        24.1     372.9
+## 4 [215,71672] [ 5.0,10.0)   6603   52.9  90.7   5.3        16.8       6.7
+## 5 [ 45,   82) [10.0,15.0)  37935   51.6  82.8  14.6        18.6     512.3
 ##   hh_income su_gun4 su_gun6  fips votes_dem_2016 votes_gop_2016
-## 1     72489 [ 5, 8) [ 7, 8) 48071           2939          13278
-## 2     54247 [ 0, 5) [ 4, 7) 27123         176929          70778
-## 3     47439 [ 8,11) [ 8,10) 12071         124725         191141
-## 4     38506 [11,54] [12,54]  5009           2925          12225
-## 5     37634 [11,54] [12,54]  1071           3663          16643
+## 1     45129 [ 5, 8) [ 7, 8) 26159          13258          17890
+## 2     32015 [ 8,11) [ 8,10)  5103           4320           5347
+## 3     50496 [ 8,11) [ 8,10) 18019          18791          30012
+## 4     36591 [ 0, 5) [ 0, 4) 51530            693           1432
+## 5     38953 [ 8,11) [ 8,10) 47045           2815          10175
 ##   total_votes_2016 per_dem_2016 per_gop_2016 diff_2016 per_dem_2012
-## 1            16661        0.176        0.797     10339        0.189
-## 2           269161        0.657        0.263    106151        0.666
-## 3           325797        0.383        0.587     66416        0.414
-## 4            15912        0.184        0.768      9300        0.245
-## 5            20785        0.176        0.801     12980        0.283
-##   per_gop_2012 diff_2012  winner partywinner16 winner12 partywinner12 flipped
-## 1        0.801      8981   Trump    Republican   Romney    Republican      No
-## 2        0.312     98137 Clinton      Democrat    Obama      Democrat      No
-## 3        0.579     44032   Trump    Republican   Romney    Republican      No
-## 4        0.725      7381   Trump    Republican   Romney    Republican      No
-## 5        0.702      8605   Trump    Republican   Romney    Republican      No</code></pre>
+## 1            33213        0.399        0.539      4632        0.497
+## 2             9881        0.437        0.541      1027        0.449
+## 3            51104        0.368        0.587     11221        0.441
+## 4             2395        0.289        0.598       739        0.364
+## 5            13290        0.212        0.766      7360        0.272
+##   per_gop_2012 diff_2012 winner partywinner16 winner12 partywinner12 flipped
+## 1        0.492       148  Trump    Republican    Obama      Democrat     Yes
+## 2        0.535       890  Trump    Republican   Romney    Republican      No
+## 3        0.540      4647  Trump    Republican   Romney    Republican      No
+## 4        0.619       645  Trump    Republican   Romney    Republican      No
+## 5        0.719      6164  Trump    Republican   Romney    Republican      No</code></pre>
 <pre class="r"><code>glimpse(county_data)</code></pre>
 <pre><code>## Rows: 3,195
 ## Columns: 32
@@ -203,7 +189,7 @@ ggsave(&quot;Masks.jpg&quot;,plot = Masks ,path=here::here(&quot;images&quot;), 
   select(hh_income, pop, per_gop_2016, delta) %&gt;% 
   GGally::ggpairs()+
   theme_minimal()</code></pre>
-<p><img src="/Projects/airbnb/index_files/figure-html/ggpairs-1.png" width="648" style="display: block; margin: auto;" />
+<p><img src="COVID19.USA_files/figure-html/ggpairs-1.png" width="648" style="display: block; margin: auto;" />
 From this we can see a rather strong negative correlation between the Delta(difference in yes vs no) is fairly strongly negatively correlated to percentage of GOP(Republican) voter. This confirms our suspicions that Republican denominated states are less likely to wear masks in comparison to the democrat counterparts. The relationships between household income and population also reflect a slight positive correlations which reflects that more developed states, are more likely to wear masks, and this may be viewed that bigger cities with higher household income are more well educated and informed on the risks of COVID 19.</p>
 </div>
 <div id="cdc-covid-19-public-use-data" class="section level1">
