@@ -99,7 +99,7 @@ disqusShortname = ""
     [[params.tiles.showcase]]
       title = "Formulating a model for the Salary Structure in a bank"
       subtitle = "Regression analysis and examination of high earning individuals"
-      image = "pic02.jpg"
+      image = "Bank.money.jpg"
       url = "blogs/bank1"
 
     [[params.tiles.showcase]]
