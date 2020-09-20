@@ -141,6 +141,7 @@ disqusShortname = ""
 
   # Contact section
   [params.contact]
+    heading="Get In Touch"
     enable = true
     buttonSend = "Send message"
     buttonClear = "Clear"
