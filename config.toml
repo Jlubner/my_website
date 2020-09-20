@@ -61,8 +61,8 @@ disqusShortname = ""
       
     
     [[params.navigation.links]]
-      name = "AirBnB Pricing Model"
-      url = "Projects/airbnb"
+      name = "TFL:Bike Rentals"
+      url = "Projects/tfl"
       
 
     # Add custom links here by uncommenting code below. To remove links just delete
