@@ -337,6 +337,8 @@ icu <-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_
         scale_y_continuous(labels = scales::percent,limits=c(0,0.9))+
         theme_bw()+
         theme(title = element_text(size=8, colour="black"))
+
+icu
    
 
 ```
