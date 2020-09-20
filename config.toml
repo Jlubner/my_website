@@ -114,6 +114,14 @@ disqusShortname = ""
       subtitle = "Graphical Analysis of USA COVID-19 Data"
       image = "nyc_mask.image.jpg"
       url = "Projects/covid"
+      
+      [[params.tiles.showcase]]
+      title = "TFL bike rentals."
+      subtitle = ""
+      image = "nyc_mask.image.jpg"
+      url = "Projects/covid"
+      
+      
 
  
 
@@ -126,12 +134,11 @@ disqusShortname = ""
     # For more informtion take a look at the README.
     # To add more blogs just copy and paste the code.
 
- Section Type Two
+ #Section Type Two
   [params.two]
     enable = true
     title = "About:"
-    subtitle = "This porfolio is to highlight a variety of statistical al conducted in R"". 
-    """
+    subtitle = "This porfolio is to highlight a variety of statistical analysis conducted in R. I am currently reading for the LBS's MAM 2021 program. I completed my undergraduate with a BSc in Mathematics,Statistics and Finance and am now hoping to explore career opportunities where Big Data meets Business and Finance"
     buttonText = "Get Started"
     url = "blogs"
 
