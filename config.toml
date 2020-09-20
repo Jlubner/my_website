@@ -1,5 +1,5 @@
 # Site settings
-baseURL = "http://jasonleelubnerweb.netlify.app"
+baseURL = "http://jasonleelubnerweb.netlify.app/"
 languageCode = "en-uk"
 title = "Jason-Lee Lubner's Portfolio"
 theme = "forty"
