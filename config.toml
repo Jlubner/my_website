@@ -130,7 +130,7 @@ disqusShortname = ""
   [params.two]
     enable = true
     title = "About:"
-    subtitle = "This porfolio is to highlight the "". 
+    subtitle = "This porfolio is to highlight a variety of statistical al conducted in R"". 
     """
     buttonText = "Get Started"
     url = "blogs"
