@@ -124,44 +124,44 @@ glimpse(nyt_mask_survey)</code></pre>
 # The id field is the FIPS code for the county
 county_map %&gt;% 
   sample_n(5)</code></pre>
-<pre><code>##      long      lat  order  hole piece            group    id
-## 1  617442 -1509148  75278 FALSE     1 0500000US22115.1 22115
-## 2  -26494 -1855819 161837 FALSE     1 0500000US48323.1 48323
-## 3 1899438  -374145  80763 FALSE     1 0500000US24021.1 24021
-## 4  206844   430867  92514 FALSE     1 0500000US27069.1 27069
-## 5  349859  -453027  58395 FALSE     1 0500000US19071.1 19071</code></pre>
+<pre><code>##       long     lat  order  hole piece            group    id
+## 1  2057957 -442421  80582 FALSE     1 0500000US24019.1 24019
+## 2 -1621339  234824 138417 FALSE     1 0500000US41055.1 41055
+## 3  1114297 -218214  85784 FALSE     1 0500000US26021.1 26021
+## 4  1637383 -519914 180722 FALSE     1 0500000US54007.1 54007
+## 5 -1743014 -391736  26506 FALSE     1 0500000US06057.1 06057</code></pre>
 <pre class="r"><code>county_data %&gt;%
     sample_n(5)</code></pre>
-<pre><code>##      id           name state census_region      pop_dens   pop_dens4
-## 1 20167 Russell County    KS       Midwest [    0,   10) [  0,   17)
-## 2 27131    Rice County    MN       Midwest [  100,  500) [118,71672]
-## 3 51077 Grayson County    VA         South [   10,   50) [ 17,   45)
-## 4 04017  Navajo County    AZ          West [   10,   50) [  0,   17)
-## 5 18101  Martin County    IN       Midwest [   10,   50) [ 17,   45)
+<pre><code>##      id              name state census_region      pop_dens   pop_dens4
+## 1 48387  Red River County    TX         South [   10,   50) [  0,   17)
+## 2 28063  Jefferson County    MS         South [   10,   50) [  0,   17)
+## 3 42083     McKean County    PA     Northeast [   10,   50) [ 17,   45)
+## 4 09015    Windham County    CT     Northeast [  100,  500) [118,71672]
+## 5 08105 Rio Grande County    CO          West [   10,   50) [  0,   17)
 ##     pop_dens6   pct_black    pop female white black travel_time land_area
-## 1 [  0,    9) [ 0.0, 2.0)   6956   50.5  95.8   0.9        14.3       886
-## 2 [ 82,  215) [ 2.0, 5.0)  65151   48.9  91.8   3.8        22.6       496
-## 3 [ 25,   45) [ 2.0, 5.0)  15093   51.1  96.3   2.2        27.7       442
-## 4 [  9,   25) [ 0.0, 2.0) 108101   49.9  51.3   1.2        22.3      9950
-## 5 [ 25,   45) [ 0.0, 2.0)  10203   49.4  98.2   0.2        25.4       336
+## 1 [  9,   25) [15.0,25.0)  12446   51.7  79.2  17.4        26.6      1037
+## 2 [  9,   25) [50.0,85.3]   7599   50.0  13.9  85.3        24.6       520
+## 3 [ 25,   45) [ 2.0, 5.0)  42554   48.8  95.5   2.7        20.0       979
+## 4 [215,71672] [ 2.0, 5.0) 116998   50.3  93.0   2.8        26.3       513
+## 5 [  9,   25) [ 0.0, 2.0)  11607   50.1  93.8   0.6        19.0       912
 ##   hh_income su_gun4 su_gun6  fips votes_dem_2016 votes_gop_2016
-## 1     37111 [11,54] [12,54] 20167            454           2544
-## 2     59915 [ 5, 8) [ 4, 7) 27131          14437          15429
-## 3     30710 [11,54] [12,54] 51077           1407           5593
-## 4     36927 [11,54] [10,12)  4017          15362          18165
-## 5     44740 [ 8,11) [10,12) 18101            881           3695
+## 1     31712 [11,54] [12,54] 48387           1148           3924
+## 2     26028 [ 0, 5) [ 0, 4) 28063           3337            489
+## 3     41834 [ 8,11) [ 8,10) 42083           3802          11159
+## 4     59333 [ 0, 5) [ 4, 7)  9015          21776          25738
+## 5     38993 [ 5, 8) [ 7, 8)  8105           1985           3060
 ##   total_votes_2016 per_dem_2016 per_gop_2016 diff_2016 per_dem_2012
-## 1             3148        0.144        0.808      2090        0.186
-## 2            32217        0.448        0.479       992        0.530
-## 3             7258        0.194        0.771      4186        0.293
-## 4            35409        0.434        0.513      2803        0.452
-## 5             4807        0.183        0.769      2814        0.285
-##   per_gop_2012 diff_2012 winner partywinner16 winner12 partywinner12 flipped
-## 1        0.798      1921  Trump    Republican   Romney    Republican      No
-## 2        0.447      2674  Trump    Republican    Obama      Democrat     Yes
-## 3        0.672      2707  Trump    Republican   Romney    Republican      No
-## 4        0.535      2998  Trump    Republican   Romney    Republican      No
-## 5        0.688      1911  Trump    Republican   Romney    Republican      No</code></pre>
+## 1             5147        0.223        0.762      2776        0.292
+## 2             3859        0.865        0.127      2848        0.887
+## 3            15572        0.244        0.717      7357        0.350
+## 4            50703        0.429        0.508      3962        0.557
+## 5             5488        0.362        0.558      1075        0.445
+##   per_gop_2012 diff_2012  winner partywinner16 winner12 partywinner12 flipped
+## 1        0.699      2067   Trump    Republican   Romney    Republican      No
+## 2        0.109      3077 Clinton      Democrat    Obama      Democrat      No
+## 3        0.632      4234   Trump    Republican   Romney    Republican      No
+## 4        0.424      6195   Trump    Republican    Obama      Democrat     Yes
+## 5        0.530       464   Trump    Republican   Romney    Republican      No</code></pre>
 <pre class="r"><code>glimpse(county_data)</code></pre>
 <pre><code>## Rows: 3,195
 ## Columns: 32
@@ -855,7 +855,7 @@ head(covid_data_cleaned1) </code></pre>
 <pre class="r"><code># FYI: Here we can also use the tally() function
 # group_by(sex, age_group,medcond_yn,death_yn) %&gt;% tally()</code></pre>
 <pre class="r"><code>library(scales)
-comob &lt;- ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death_rate_label))+
+ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death_rate_label))+
          geom_col(fill=&quot;#697aa1&quot;,alpha=0.8)+
          coord_flip()+
          facet_grid(medcond_yn~sex)+
@@ -867,9 +867,9 @@ comob &lt;- ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death
              caption = &quot;Source:CDC&quot;) +
         scale_y_continuous(labels = scales::percent,limits=c(0,0.75))+ 
         theme_bw()+
-        theme(title = element_text(size=8, colour=&quot;black&quot;))
-
-#comob</code></pre>
+        theme(title = element_text(size=8, colour=&quot;black&quot;))</code></pre>
+<p><img src="/Projects/covid/index_files/figure-html/covid_death_rate_comorbidities%20plot-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#comob</code></pre>
 </div>
 <div id="plot-2-icu" class="section level2">
 <h2>Plot 2 ICU</h2>
@@ -896,7 +896,7 @@ covid_data_cleaned2$icu_yn&lt;- factor(covid_data_cleaned2$icu_yn,
                                     labels = c(&quot;Admitted to ICU&quot;,&quot;No ICU&quot;))
 
 #why the numbers are different but close?
-icu &lt;-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_label))+
+ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_label))+
          geom_col(fill=&quot;#ff9582&quot;,alpha=0.7)+
          coord_flip()+
          facet_grid(icu_yn~sex)+
@@ -909,6 +909,7 @@ icu &lt;-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_ra
         scale_y_continuous(labels = scales::percent,limits=c(0,0.9))+
         theme_bw()+
         theme(title = element_text(size=8, colour=&quot;black&quot;))</code></pre>
+<p><img src="/Projects/covid/index_files/figure-html/covid_death_rate_icu-1.png" width="648" style="display: block; margin: auto;" /></p>
 </div>
 <div id="findings" class="section level2">
 <h2>Findings</h2>
@@ -941,13 +942,13 @@ When we investigate the death rate across these two plots, it is obvious among t
                 
                     <li><a href="https://www.twitter.com" class="icon alt fa-twitter" target="_blank"><span class="label">Twitter</span></a></li>
                 
-                    <li><a href="https://www.facebook.com" class="icon alt fa-facebook" target="_blank"><span class="label">Facebook</span></a></li>
+                    <li><a href="https://www.facebook.com/jason.lubner/" class="icon alt fa-facebook" target="_blank"><span class="label">Facebook</span></a></li>
                 
                     <li><a href="https://www.instagram.com" class="icon alt fa-instagram" target="_blank"><span class="label">Instagram</span></a></li>
                 
                     <li><a href="https://github.com/Jlubner/my_website" class="icon alt fa-github" target="_blank"><span class="label">GitHub</span></a></li>
                 
-                    <li><a href="https://www.linkedin.com" class="icon alt fa-linkedin" target="_blank"><span class="label">LinkedIn</span></a></li>
+                    <li><a href="https://www.linkedin.com/in/jason-lee-lubner-5b5323178/" class="icon alt fa-linkedin" target="_blank"><span class="label">LinkedIn</span></a></li>
                 
             </ul>
             <ul class="copyright">

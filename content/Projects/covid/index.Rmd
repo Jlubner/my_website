@@ -281,7 +281,7 @@ head(covid_data_cleaned1)
 
 ```{r covid_death_rate_comorbidities plot}
 library(scales)
-comob <- ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death_rate_label))+
+ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death_rate_label))+
          geom_col(fill="#697aa1",alpha=0.8)+
          coord_flip()+
          facet_grid(medcond_yn~sex)+
@@ -324,7 +324,7 @@ covid_data_cleaned2$icu_yn<- factor(covid_data_cleaned2$icu_yn,
                                     labels = c("Admitted to ICU","No ICU"))
 
 #why the numbers are different but close?
-icu <-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_label))+
+ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_label))+
          geom_col(fill="#ff9582",alpha=0.7)+
          coord_flip()+
          facet_grid(icu_yn~sex)+
@@ -338,7 +338,7 @@ icu <-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_
         theme_bw()+
         theme(title = element_text(size=8, colour="black"))
 
-icu
+
    
 
 ```
