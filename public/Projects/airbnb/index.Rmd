@@ -1,18 +1,16 @@
 ---
-title: "NYT Mask Use Acceptance"
-author: "Study Group 14 and Kostis Christodoulou"
+title: "Final Group Project: AirBnB Listings Cape_Town"
+author: "Group 14"
 date: "`r Sys.Date()`"
 output:
   html_document:
-    highlight: zenburn
     theme: flatly
+    highlight: zenburn
+    number_sections: yes
     toc: yes
     toc_float: yes
-  word_document:
-    toc: yes
+    code_folding: show
 ---
-
-#Exploring COVID-19 Mask Acceptanc rate and the dynaics of death as a percentage of the polutaion in the USA.
 
 ```{r, setup, echo=FALSE}
 knitr::opts_chunk$set(
@@ -30,338 +28,1795 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Executive Summary
 
-```{r load-libraries,echo=FALSE}
-library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
-library(janitor)
-library(skimr)
-library(vroom)
-library(mosaic)
+This report explores a dataset coming from AirBnB containing information on property listings in Cape Town, South Africa. The aim of this reports is to establish a multiple regression model capable of predicting the price for 2 people staying for 4 nights based on a series of factors. 
+
+We will begin by exploring the data itself to understand its composition and underlying factors. Next, we cleaned and improved the data making it more manageable by simplifying certain categorical variables and dealing with missing values in the  variables we deemed useful. Similarly, we removed variables we considered as irrelevant for the purposes of the model. 
+
+We also created a map with geo taggings of price, property type and attached url and ran a series of visualizations to gain an understanding of the variables included in the dataset before testing and running regressions.
+
+Finally we conducted a series of regression tests on varying factors as well as applying a series of transofrmations in order to find the best model possible, before finally predicting the price for 4 nights for 2 people based on a series of predetermined inputs. Diagnostics have been conducted throughout the regression section as we laid out mobel by model. After coming up with a final model we left some suggestions for improvement and further analysis.
+
+
+
+
+# Data Preparation
+
+We start by loading packages.
+
+```{r, load-libraries, echo=FALSE}
+library(tidyverse)
+library(dplyr)
+library(moderndive)
 library(here)
-
-#remotes::install_github("kjhealy/socviz")
-library(socviz)
+library(GGally)
+library(broom)
+library(vroom)
+library(here)
+library(janitor)
+library(huxtable)
+library(lmtest)
+library(MASS)
+library(car)
+library(formula.tools)
+library(leaps)
+library(mosaic)
+library(readr)
+library(kableExtra)
 ```
 
+# Exploratory Data Analysis
+## Load the dataset
 
-## NYT mask use
+First, we will load the data set from an URL provided by our professor.
 
-Github source for data https://github.com/nytimes/covid-19-data/tree/master/mask-use
-
-
-## Getting the data 
-
-```{r, read_data}
-#Source for data url <- "https://github.com/nytimes/covid-19-data/raw/master/mask-use/mask-use-by-county.csv"
-
-nyt_mask_survey <- read_csv(here::here("data", "nyt_mask_survey.csv"))
-
-nyt_mask_survey <- nyt_mask_survey %>%
-  clean_names() %>% 
-  mutate(
-    mostly_yes= frequently+always,
-    mostly_no = never+rarely,
-    delta = mostly_yes-mostly_no
-  )
-
-glimpse(nyt_mask_survey)
+```{r message=FALSE, warning=FALSE}
+listings <- vroom("http://data.insideairbnb.com/south-africa/wc/cape-town/2020-06-21/data/listings.csv.gz") %>% 
+    clean_names()
 ```
 
-## Choropleth map
+## Raw values
+To get an understanding of the data, we will look at the raw values with the `glimpse` function.
 
-The FIPS code is a federal code that numbers states and territories of the US. It extends to the county level with an additional four digits, so every county in the US has a unique six-digit identifier, where the first two digits represent the state. 
-
-We will be using Kieran Healy's `socviz` package which among other things contains `county_map` and `county_data`  
-
-```{r}
-# America’s choropleths; use county_map that has all polygons 
-# and county data with demographics/election data from socviz datafile
-# The id field is the FIPS code for the county
-county_map %>% 
-  sample_n(5)
-
-county_data %>%
-    sample_n(5)
-
-
-glimpse(county_data)
-# we have data on 3195 FIPS....
-
-glimpse(county_map)
-# ... but to create a map, we translate these 3195 counties to 191,382 polygons!
-
-
-
-
+```{r, glimpse}
+dplyr::glimpse(listings)
 ```
 
-## Joing the files
+We find that the dataset has 24,602 observations (rows) with 106 variables (columns).
 
-We have three files
+When looking at the data set as a whole, we can see that there are many different data types, such as characters `chr`, numeric doubles `dbl`, logicals `lgl` and dates `date`. Nevertheless, not all variables seem to be stored in the correct variable type. Let's have a closer look.
 
-1. `nyt_mask_survey`, our NYT survey data, 
-1. `county_map` that has all polygons that define a county
-1. `county_data` with demographics/election data.
+We find the following 37 variables correctly stored as **doubles**:
 
+- `host_listings_count`
+- `host_total_listings_count`
+- `zipcode`
+- `latitude`
+- `longitude`
+- `accommodates`
+- `bathrooms`
+- `bedrooms`
+- `beds`
+- `square_feet`
+- `guests_included`
+- `minimum_nights`
+- `maximum_nights`
+- `minimum_minimum_nights`
+- `minimum_maximum_nights`
+- `maximum_maximum_nights`
+- `maximum_minimum_nights`
+- `minimum_nights_avg_ntm`
+- `maximum_nights_avg_ntm`
+- `availability_30`
+- `availability_60`
+- `availability_90`
+- `availability_365`
+- `number_of_reviews`
+- `number_of reviews_ltm`
+- `review_scores_rating`
+- `review_scores_accuracy`
+- `review_scores_cleanliness`
+- `review_scores_checkin`
+- `review_scores_communication`
+- `review_scores_location`
+- `review_scores_value`
+- `calculated_host_listings_count`
+- `calculated_host_listings_count_entire_homes`
+- `calculated_host_listings_count_private_rooms`
+- `calculated_host_listings_count_shared_rooms`
+- `reviews_per_month`
 
+We found the following 3 variables stored as doubles but believe they would be better stored as characters as they function more like names rather than numbers.
 
-```{r, join_data}
+- `id`
+- `scrape_id`
+- `host_id`
 
+As these variables will however not be relevant for our further anaylsis, we will leave them untouched when cleaning the data set.
 
-county_full <- left_join(county_map, county_data, by = "id")
+We did, however, find the following 8 variables that are wrongly stored and must be stored as numeric variables: 
 
-county_masks_full <- left_join(county_full, nyt_mask_survey, 
-                                by = c("id"="countyfp"))
-```
+- `price`
+- `host_response_rate`
+- `host_acceptance_rate`
+- `weekly_price`
+- `monthly_price`
+- `security_deposit`
+- `cleaning_fee`
+- `extra_people`
 
-## Building our choropleth plot
+We will change these data types by cleaning the data.
 
-```{r, plot_choropleths, cache=TRUE}
+As `price` is currently a character instead of a numeric variable, we want to change its variable type in the following.  To do so, we will first use `readr::parse_number()` which drops any non-numeric characters before or after the first number.
 
-p <- ggplot(data = county_masks_full,
-            mapping = aes(x = long, y = lat,
-                          fill = delta, 
-                          group = group))
+While we are unsure about the currency, we will assume it's in USD and not the local currency Rand.
 
-p1 <- p + 
-  geom_polygon(color = "gray90", size = 0.05) + 
-  coord_equal()
+```{r, change price to numeric}
 
+listings <- listings %>% 
+  mutate(price = parse_number(price))
 
-
-p2 <- p1 + 
-  scale_fill_gradient(low = '#ffffcc', high= '#006837')
-
-p3 <- p1 + 
-  scale_fill_gradient2()
-
-# get different colours from https://colorbrewer2.org/
-# the one shown here is https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=6
-p4 <- p1 + 
-  scale_fill_gradientn(colours = c('#8c510a','#d8b365','#f6e8c3','#c7eae5','#5ab4ac','#01665e'))
-
-
-Masks <-p4 + labs(fill = "Mask acceptance, (Mostly Yes - Mostly No)", 
-          caption = "“Estimates from The New York Times, based on roughly 250,000 interviews \nconducted by Dynata from July 2 to July 14, 2020”") +
-  guides(fill = guide_legend(nrow = 1)) + 
-  theme_map() + 
-  theme(legend.position = "bottom")
-
-ggsave("Masks.jpg",plot = Masks ,path=here::here("images"), width = 17, height = 10)  
-  knitr::include_graphics(here::here("images", "Masks.jpg"))
-
-```
-```{r voting_map, out.width="100%"}
-knitr::include_graphics(here::here("images", "2016ElectionMap_v2.png"))
-```
-
-The image above highlights some interesting dynamics. There is seems to be a acceptance(>50%) of masks in most regions of the US,specifically the west and east coastswhere mask acceptance is greater than 75% on average. However we notice that the 'Deep South' (exclusing Texas), 'Midwest', 'Deep North' and 'Mountain West Regions' so a much greater reluctance to accept mask usage, with some regions actually be opposed to mask usage(-0.25% acceptance). If we compare this to a map exploring how states voted we begin to see a rather interesting dynamic. There seems to be a higher acceptance of mask usage amongst states that voted Democrat over Republican states. This is in line with messaging from leaders within the two parties.Democratic leaders have been more vocal about the importance of face masks. Many Democratic governors have made it mandatory to wear masks in public. Joe Biden, the presumptive Democratic presidential nominee, said if he were in the White House, he would “do everything possible to make it required that people have to wear masks in public”.
-
-In contrast, while many Republican leaders have also spoken out about the importance of masks, other top Republicans have been more hesitant to mandate masks, even as their states started to see surges of cases amid the reopening phases. The most obvious of these is Donald Trump himself who has suggested wearing a mask could be seen as a political statement against him and mocked Biden for wearing a mask in public. 
-
-We now explore some further dynamics to understand if there are any relationships between country household income, population, and % who voted republican in 2016
-
-
-## Checking for relationships
-
-
-```{r, ggpairs, cache=TRUE}
-county_masks_full %>% 
-  select(hh_income, pop, per_gop_2016, delta) %>% 
-  GGally::ggpairs()+
-  theme_minimal()
-```
-From this we can see a rather strong negative correlation between the Delta(difference in yes vs no) is fairly strongly negatively correlated to percentage of GOP(Republican) voter. This confirms our suspicions that Republican denominated states are less likely to wear masks in comparison to the democrat counterparts. The relationships between household income and population also reflect a slight positive correlations which reflects that more developed states, are more likely to wear masks, and this may be viewed that bigger cities  with higher household income are more well educated and informed on the risks of COVID 19.
-
-
-# CDC COVID-19 Public Use Data
-
-Using the [CDC Covid-19 Case Surveillance Data](https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf). There are well over 3 million entries of individual, de-identified patient data. Since this is a large file, we use `vroom` to load it and keep `cache=TRUE` in the chunk options.
-
-
-```{r, cache=TRUE}
-# URL link to CDC to download data
-url <- "https://data.cdc.gov/api/views/vbim-akqf/rows.csv?accessType=DOWNLOAD"
-
-covid_data <- vroom(url)%>%
-  clean_names()
+#confirm that price is now stored as a number
+typeof(listings$price)
 
 ```
 
-Given the data we have, the task is to produce two graphs that show death % rate:
+Next, we change the rest of the variables listed above to numeric. We will keep in mind that the currency of all those is in dollars as we will eliminate the character "$" from the value.
 
-1. by age group, sex, and whether the patient had co-morbidities or not
-1. by age group, sex, and whether the patient was admited to Intensive Care Unit (ICU) or not.
+```{r, change rest of monetary variables to numeric to numeric}
+#change all to numerics
 
+listings <- listings %>% 
+  mutate(weekly_price = parse_number(weekly_price))
 
-```{r covid_challenge, out.width="100%"}
-knitr::include_graphics(here::here("images", "covid_death_rate_comorbidities.png"))
-knitr::include_graphics(here::here("images", "covid_death_rate_icu.png"))
+listings <- listings %>% 
+  mutate(monthly_price = parse_number(monthly_price))
+
+listings <- listings %>% 
+  mutate(security_deposit = parse_number(security_deposit))
+
+listings <- listings %>% 
+  mutate(cleaning_fee = parse_number(cleaning_fee))
+
+listings <- listings %>% 
+  mutate(extra_people = parse_number(extra_people))
+
+#check all
+typeof(listings$weekly_price)
+typeof(listings$monthly_price)
+typeof(listings$security_deposit)
+typeof(listings$cleaning_fee)
+typeof(listings$extra_people)
+
 ```
 
-We examine the data using skim, head, and glimpse.
+Lastly, we change the rates into numerics, keeping in mind that they are in percentages as we will eliminate the "%" sign from the value.
 
-```{r }
-# check data
-skim(covid_data)
-head(covid_data)
-glimpse(covid_data)
+```{r, change rate variables to numeric}
+#change all to numerics
+
+listings <- listings %>% 
+  mutate(host_response_rate = parse_number(host_response_rate))
+
+listings <- listings %>% 
+  mutate(host_acceptance_rate = parse_number(host_acceptance_rate))
+
+#check all
+typeof(listings$host_response_rate)
+typeof(listings$host_acceptance_rate)
 ```
 
-And we notice that there are unknown and missing values. Since we will be using sex, age_group, medcond_yn, icu_yn, and finally death_yn in our ggplot, we need to look at the frequencies of these values.
+While there are multiple variables in the dataset, here is a quick description of some of the relevant variables collected, with cost data typically expressed in US$. We will focus our analysis on these. 
 
-```{r}
-# look at frequencies to see how to clean the data
+- `price`: cost per night  
+- `cleaning_fee`: cleaning fee  
+- `extra_people`: charge for having more than 1 person
+- `property_type`: type of accommodation (House, Apartment, etc.)
+- `room_type`:
+    - Entire home/apt (guests have entire place to themselves)
+    - Private room (Guests have private room to sleep, all other rooms shared)
+    - Shared room (Guests sleep in room shared with others)
+- `number_of_reviews`: Total number of reviews for the listing
+- `review_scores_rating`: Average review score (0 - 100)
+- `longitude , latitude`: geographical coordinates to help us locate the listing
+- `neighbourhood`: three variables on a few major neighbourhoods in each city
+
+
+## Summary Statistics 
+
+### Skim
+
+In order to compute summary statistics of our variables and to find NAs, we will now run both the `favstats()` and the `skim()` function.
+
+```{r, skim}
+skimr::skim(listings)
+```
+
+We find that the original data set includes:
+- 43 character variables
+- 41 numeric variables
+- 17 logical variables
+- 5 date variables
+
+_(before data cleaning done in previous section)_
+
+After the first data cleaning in the section above, we find:
+
+- 35 character variables
+- 49 numeric variables
+- 17 logical variables
+- 5 date variables
+
+
+**MISSING VALUES**
+
+This is how many missing values we find within our relevant variables:
+
+- `price`: 0 missing
+- `extra_people`: 0 missing
+- `property_type`: 0 missing
+- `room_type`: 0 missing
+- `number_of_reviews`: 0 missing
+- `longitude , latitude`: both 0 missing
+- `neighbourhood_cleansed`: 0 missing
+
+
+- `cleaning_fee`: 7,049 missing
+- `review_scores_rating`: 7,314 missing
+
+_Note: We will go with `price` as relevant price variable as it indicates the price per night and the other price variables (`weekly_price` and `monthly_price`) have several missing values._
+
+As a missing value for `cleaning_fee` highly likely indicates, that there is no cleaning fee, we will convert all NAs to 0.
+
+We already changed the `cleaning_fee` data type to numeric in the previous section and will now substitute all NAs with 0s as described.
+
+```{r, cleaning fee}
+#replace all NAs with 0
+listings <- listings %>%
+  mutate(cleaning_fee = case_when(
+    is.na(cleaning_fee) ~ 0, 
+    TRUE ~ cleaning_fee
+  ))
+
+#skimr::skim(listings)
+# find no more missing values for cleaning_fee
+```
+
+In order to still capture the observations that have a missing `review_scores_rating` but don't skew the average scores rating, we will calculate the mean of all scores (except NAs) and then convert all NAs into that mean score.
+
+```{r, review scores rating}
+#calculate the mean of all scores except NAs
+avg_review_scores_rating <- listings %>% 
+  # pull the review_scores_rating as a list
+  pull(review_scores_rating) %>% 
+  mean(na.rm = TRUE)
+
+#convert NAs to the mean score
+listings <- listings %>% 
+  mutate(review_scores_rating = case_when(
+    is.na(review_scores_rating) ~ avg_review_scores_rating,
+    TRUE ~ review_scores_rating
+  ))
+
+#skimr::skim(listings)
+# find no more missing values for review_scores_rating
+```
+
+_Note: Variables with 100% missing values will be eliminated later)_
+
+**PROPERTY TYPE**
+
+Looking at `property_type`, we can use the `count` function to determine how many categories there are their frequency.
+
+```{r, top property types}
+#count property types
+listings %>% 
+  count(property_type) %>% 
+  arrange(desc(n)) #arrange in descending order of count
+
+```
+
+We find that the top 4 property types are "Apartment" with 9,670 listings, "House" with 7,030 listings, "Guest suite" with 1,488 listings and "Villa" with 1,051 listings. Together these top 4 property types concern 19,239 listings, meaning they account for **80%** (19,239 / 24,062) of all listings and are, therefore, most relevant for our analysis.
+
+Since the vast majority of the observations in the data are one of the top four property types, we would like to create a simplified version of property_type variable that has 5 categories: the top four categories and Other. 
+
+```{r, change property_type}
+#mutate to 5 types
+listings <- listings %>%
+  mutate(prop_type_simplified = case_when(
+    property_type %in% c("Apartment","House", "Guest suite","Villa") ~ property_type, 
+    TRUE ~ "Other"
+  ))
+ 
+#check prop_type_simplified compared to property_type
+listings %>%
+  count(property_type, prop_type_simplified) %>%
+  arrange(desc(n))      
+
+#check only prop_type_simplified
+listings %>%
+  count(prop_type_simplified) %>%
+  arrange(desc(n))   
+
+```
+
+
+**MINIMUM NIGHTS**
+
+As Airbnb is most commonly used for travel purposes, i.e., as an alternative to traditional hotels, we only want to include listings in our regression analysis that are intended for travel purposes.
+
+```{r, most common minimum_nights}
+#count values for minimum_nights
+listings %>% 
+  count(minimum_nights) %>% 
+  arrange(desc(n)) #arrange in descending order of count to find most common values
+
+```
+
+The top 3 most common minimum days of stay required by the host are 2 nights with 7,436 observations, 1 night with 6,894 observations and 3 nights with 3,527 observations. Number 4 is 7 nights minimum stay with 1,614 observations. 
+
+This clearly shows that hosts are either fine with their guests doing a short-stay around 1-3 days or want them to stay at least a week at 7 days minimum stay. 
+
+Ranking place number 7, 8 and 9 are 10, 14 and 20 days respectively. With all this information, it is easy to see that hosts are either okay with short-term stays with frequently new guests and also frequently cleaning and tidying the space, whereas other hosts only want guests for long-term stays (e.g. 1-2 weeks). This is most probably the reason because only long-term stays are profitable for these hosts or they don't want to tidy the space every second.
+
+To analyse the data, we filter the data set so that it only includes observations with minimum_nights <= 4
+
+```{r, filter minimum nights}
+#filter minimum nights <= 4
+listings <- listings %>% 
+  filter(minimum_nights <= 4)
+
+#check
+listings %>% 
+  count(minimum_nights) %>% 
+  arrange(desc(n)) 
+```
+
+**NEIGHBOURHOODS**
+
+We also find that there are several different neighbourhood variables, namely: 
+
+- `neigborhood_overview`: gives a description
+- `neighbourhood`: all NAs
+- `neighbourhood_cleansed`: indicates which ward listing is in
+- `neighbourhood_group_cleansed`: all NAs
+
+We will eliminate the the two variables that are just NAs and will try to summarize the `neighbourhood_cleansed` variable into only a few city areas instead of so many wards. Since Cape Town has 116 wards, we decide to split them into 24 sub councils, which deal with local functions for between three and six wards.
+
+```{r, creating new variable `sub_council`}
+listings <- listings %>% 
+#creating a new variable to take down sub council names
+  mutate(sub_council = case_when(
+    neighbourhood_cleansed %in% c("Ward 23","Ward 29", "Ward 32","Ward 104") ~ 1,
+    neighbourhood_cleansed %in% c("Ward 6","Ward 7", "Ward 8","Ward 101", "Ward 102", "Ward 111") ~ 2,
+    neighbourhood_cleansed %in% c("Ward 1","Ward 4", "Ward 5","Ward 70", "Ward 107", "Ward 113") ~ 3,
+    neighbourhood_cleansed %in% c("Ward 25","Ward 26", "Ward 27","Ward 28", "Ward 30") ~ 4,
+    neighbourhood_cleansed %in% c("Ward 13","Ward 20", "Ward 24","Ward 31", "Ward 50", "Ward 106") ~ 5,
+    neighbourhood_cleansed %in% c("Ward 2","Ward 3", "Ward 9","Ward 10", "Ward 12", "Ward 22") ~ 6,
+    neighbourhood_cleansed %in% c("Ward 21","Ward 103", "Ward 105","Ward 112") ~ 7,
+    neighbourhood_cleansed %in% c("Ward 83","Ward 85", "Ward 86","Ward 100") ~ 8,
+    neighbourhood_cleansed %in% c("Ward 18","Ward 87", "Ward 89","Ward 90", "Ward 91", "Ward 116") ~ 9,
+    neighbourhood_cleansed %in% c("Ward 92","Ward 93", "Ward 94","Ward 97", "Ward 98", "Ward 99") ~ 10,
+    neighbourhood_cleansed %in% c("Ward 40","Ward 44", "Ward 46","Ward 47") ~ 11,
+    neighbourhood_cleansed %in% c("Ward 78","Ward 79", "Ward 81","Ward 82") ~ 12,
+    neighbourhood_cleansed %in% c("Ward 34","Ward 35", "Ward 36","Ward 80", "Ward 88") ~ 13,
+    neighbourhood_cleansed %in% c("Ward 37","Ward 38", "Ward 39","Ward 41", "Ward 42", "Ward 45") ~ 14,
+    neighbourhood_cleansed %in% c("Ward 51","Ward 52", "Ward 53","Ward 55", "Ward 56") ~ 15,
+    neighbourhood_cleansed %in% c("Ward 54","Ward 57", "Ward 74","Ward 77", "Ward 115") ~ 16,
+    neighbourhood_cleansed %in% c("Ward 48","Ward 49", "Ward 60") ~ 17,
+    neighbourhood_cleansed %in% c("Ward 63","Ward 65", "Ward 66","Ward 67", "Ward 68", "Ward 110") ~ 18,
+    neighbourhood_cleansed %in% c("Ward 61","Ward 64", "Ward 69") ~ 19,
+    neighbourhood_cleansed %in% c("Ward 58","Ward 59", "Ward 62","Ward 71", "Ward 72", "Ward 73") ~ 20,
+    neighbourhood_cleansed %in% c("Ward 11","Ward 19", "Ward 108") ~ 21,
+    neighbourhood_cleansed %in% c("Ward 14","Ward 16", "Ward 17","Ward 114") ~ 22,
+    neighbourhood_cleansed %in% c("Ward 33","Ward 43", "Ward 75","Ward 76") ~ 23,
+    TRUE ~ 24
+  )) 
+
+
+```
+After consulting Cape Town experts in our group, we found that the 24 sub councils can be further categorised into 6 neighbourhood areas, which namely are Atlantic seaboard, CBD, Outer suburbs, Southern Suburbs, Cape Flats and Sommerset.
+
+Atlantic seaboard- this term is often used by locals to describe the residential/ commercial  areas facing the Atlantic seaboard and in front of table mountain, region is often characterized by luxury apartments and homes and offers many tourist attractions such a views from table mountain and beachfront restaurants
+
+CBD-this region is generally considered the city centre and  its surrounding areas characterized as the business/ commercial district of cape town.
+
+Outer suburbs- these are regions generally away from the CBD and seaside, land mainly used for industrial purposes.
+
+Southern Suburbs-Cape Town's Southern Suburbs lie to the Southeast of the slopes of Table Mountain within rich valleys and vast plains reaching from just south of the Table Bay industrial neighbourhoods in the north to the False Bay coastal suburbs and the Cape Peninsula cliffs to the south, and are crossed North-South by the M3 and M5 freeways. In general, this area is identified as being the more affluent of the Cape Town Metropolis' sections and includes the city's most expensive residential neighbourhoods. 
+
+Cape Flats- this regions are generally characterized by their townships, this includes Mitchells Plainand and Khayelitsha and guguletho some of the regions largest townships, characterized by being very low income and run down.
+
+Sommerset- Sommerset west is one of the largest coastal towns outside of the CBD, and offers both residential and tourist appeal away from the hussle of the city centre.
+
+
+```{r, creating new variable `neighbourhood_simplified`}
+#change `sub_council` to character form since it represents a name tag
+listings$sub_council <- as.character(listings$sub_council)
+#summarize all wards from neighbourhood_cleansed to 6 neighbourhood areas
+listings <- listings %>%
+  mutate(neighbourhood_simplified = case_when(
+    sub_council %in% c(1, 2, 7, 21) ~ "Outer Suburbs", 
+    sub_council %in% c(3, 4, 5, 6) ~ "CBD", 
+    sub_council %in% c(8, 22) ~ "Sommerset", 
+    sub_council %in% c(9, 10, 12, 24) ~ "Cape Flats", 
+    sub_council %in% c(11, 13, 14, 17, 18, 23) ~ "Southern Suburbs", 
+    TRUE ~ "Atlantic Seaboard"
+  ))
+
+#check neighbourhood_simplified compared to sub_council
+listings %>%
+  count(neighbourhood_simplified, sub_council) %>%
+  arrange(desc(n))   
+```
+**LOCATION**
+
+Further, we find these variables regarding location:
+
+- 441 unique values for `street`
+- 259 unique values for `city`
+- 56 unique values for `state`
+- 4 unique values for `market` 
+- 2 unique values for `country_code`
+- 2 unique values for `country`
+
+As several values for `market`, `country_code` and `country` seem odd, we inspect those values further in the dataset. 
+
+We find that `market` includes the following values:
+
+- "Cape Town"
+- "Other International"
+- "Krabi"
+- "D.C."
+
+However, they all have "Cape Town" as values for the smart location which is why we can either disregard this column or we assume the names are just wrong so that we can change the three odd names to "Cape Town" also. 
+
+```{r, change odds in market column}
+#change "Other Internatinal", "Krabi", "D.C." to "Cape Town"
+listings <- listings %>% 
+    mutate(market = case_when(
+    market == "Cape Town" ~ "Cape Town",
+    TRUE ~ "Cape Town"
+  ))
+
+#check
+listings %>% 
+  count(market) 
+
+```
+
+When further investigating `country_code` and `country`, we find that all observations have the value "ZA" or "South Africa" **but one** observation which has the values "CG" and "Congo" respectively. As this observation's `smart_location` is also "Congo", we eliminate this observation as a wrongly assigned value.
+
+```{r, leave out the "ZA" observation}
+#filter the observations to ensure they contain "ZA" for 'country_code'
+listings <- listings %>% 
+    filter(country_code != "CG")
+
+#check
+listings %>% 
+  count(country_code) 
+
+```
+
+We find that 6 values within `state` are called “.Western Cape” instead of “Western Cape” which we will change in the data cleansing as well.
+@SR
+
+```{r, state}
+#change ".Western Cape" to "Western Cape"
+listings$state[listings$state == ".Western Cape"] <- "Western Cape"
+listings$state[listings$state == "Cape town"] <- "Cape Town"
+listings$state[listings$state == "Cape Town - Western Cape"] <- "Cape Town"
+listings$state[listings$state == "Cape Town Western Cape"] <- "Cape Town"
+#check
+listings %>% 
+  count(state) 
+
+```
+
+We further find that `host_location` has several unique values including
+- “Cape Town, Western Cape, South Africa”
+- “ZA”
+- “Parow, Western Cape, South Africa”
+
+```{r, host location}
+listings %>% 
+  count(host_location) %>% 
+  arrange(desc(n))  
+```
+However, since there are many different values and this variable does not play a significant part in our further analysis, we choose to disregard it. 
+
+**CATEGORICAL VARIABLES**
+
+Lastly, we find several categorical or factor variables (numeric or character variables with variables that have a fixed and known set of possible values). 
+
+- `host_response_time` (as specified by Airbnb, e.g. “within an hour”,  “within a day”)
+
+- `host_response_rate` (between 0% and 100%)
+- `host_acceptance_rate` (between 0% and 100%)
+
+- `host_is_superhost` (TRUE or FALSE)
+- `host_has_profile_pic` (TRUE or FALSE)
+- `host_identity_verified` (TRUE or FALSE)
+
+- `neighbourhood_cleansed` (limited number of Wards)
+- `city` (limited set of cities that belong to the area)
+- `state` (only one state, “Western Cape”)
+- `zipcode` (limited set of zip codes for the area)
+- `market` (should all be “Cape Town”)
+- `country_code` (should all be “ZA”)
+- `country` (should all be “South Africa”)
+
+
+**TEXT VARIABLES**
+
+We further find these following variables which are filled with descriptive text or are just URL-addresses and will, thus, also not be relevant to our analysis.
+
+- `name`
+- `summary`
+- `space`
+- `description`
+- `neighborhood_overview`
+- `notes`
+- `transit`
+- `access`
+- `interaction`
+- `house_rules`
+- `host_about`
+- `listing_url`
+- `thumbnail_url` (all NAs)
+- `medium_url` (all NAs)
+- `picture_url`
+- `xl_picture_url` (all NAs)
+- `host_url`
+- `host_thumbnail_url`
+- `host_picture_url`
+
+```{r, dataset version 2 leaving out text variables}
+listings_version2 <- listings %>% 
+#deselecting all text variables
+    dplyr::select(-name, -summary, -space, -description,
+                  -neighborhood_overview, -notes, -transit, -access,
+                  -interaction, -house_rules, -host_about, -listing_url,
+                  -thumbnail_url, -medium_url, -picture_url, -xl_picture_url, 
+                  -host_url, -host_thumbnail_url, -host_picture_url)
+
+```
+
+**MISSING VALUES 2**
+
+While some variables have 0 missing values, a lot of variables have some missing values. However, we do find 8 variables that miss all values, namely that only (or for one mainly) include NAs (Not Available). We will eliminate these when cleaning the data set.
+
+- `host_neighbourhood`
+- `thumbnail_url`
+- `medium_url`
+- `xl_picture_url`
+- `neighbourhood`
+- `neighbourhood_group_cleansed`
+- `jurisdiction_names`
+- `license` (mainly NAs except for a few irrelevant values)
+
+```{r, dataset version 3 leaving out variables containing only or mainly NAs}
+listings_version3 <- listings_version2 %>% 
+#deselecting variables with only or mainly NAs
+    dplyr::select(-host_neighbourhood, -neighbourhood, -neighbourhood_group_cleansed, 
+                  -jurisdiction_names, -license)
+
+```
+
+We can also see that all observations have a value for the `experiences_offered` variable. As there is only 1 unique value, which is "none", we will can discard this variable, too as it adds no value to our analysis.
+
+```{r, excluding experiences_offered}
+listings_version3 <- listings_version3 %>% 
+#deselecting the column `experiences_offered`
+  dplyr::select(-experiences_offered)
+
+```
+
+The target variable is the cost for two people to stay at an Airbnb location for four (4) nights, namely (price+extra_people)*4. So we create a new variable `price_4_nights` in our dataset 'listings_version3'.
+
+```{r, mutating new variable}
+listings_version3 <- listings_version3 %>% 
+#creating a new variable `price_4_nights`
+  mutate(price_4_nights = ifelse(guests_included < 2, 4*(price+extra_people) + cleaning_fee, 
+                                 price*4+cleaning_fee))
+
+```
+
+
+
+### Favstats
+
+Lastly, we will have a look at `favstats()` of the numeric variables that we specified as relevant earlier:
+
+```{r, favstats}
+#favstats related numerical variables to examine rough distribution/outliers
+favstats(listings_version3$price)
+
+favstats(listings_version3$price_4_nights)
+
+favstats(listings_version3$number_of_reviews)
+
+favstats(listings_version3$review_scores_rating)
+
+favstats(listings_version3$accommodates)
+
+favstats(listings_version3$longitude)
+
+favstats(listings_version3$latitude)
+
+```
+
+It seems there exist fairly isolated outliers for these numeric variables.
+
+Meanwhile, we can double check from favstate results that all of the 7 variables have 18954 counts, namely no missing values after we have selected the observations with minimum_nights <= 4. 
+
+The maximum of `price` is 300,009, almost **300** (300,009/988) times higher than the median. The standard deviation for `price` is 7,537.011, signaling high variability. 
+
+For `price_4_nights` , the max is 1,200,036; the mean (8801) is larger than median (4212), indicating that the distribution could be right-skewed.
+
+For `number_of_reviews`, mean is similar to Q3 and the maximum is way higher than median. This is possibly because a large number of "0"s exist in the column. 
+
+For `review_scores_rating`, most values are within 94.5 and 99, and the mean is 94, indicating that review_scores_rating are fairly high for Cape Town properties.
+
+For `accommodates`, most properties can have 2 to 4 people, while the largest accommodates 40.
+
+For `longitude`(`latitude`), all values are clustered around "18.4"("-34.0"). This verifies that we are getting right observations in one certain area, namely Cape Town.
+
+Overall, the results of favstats show there are outliers that could distrupt our analysis. Thus in each visualization, we would like to limit the numerical values to its [quantile 10%, quantile 90%].
+
+
+## Informative visualisations 
+### Graphs of variables of interest
+#### Density Plot
+
+- price
+
+The distribution is right-skewed and prices (per night) are concentrated around $550.
+
+```{r,plot of price, message=FALSE, warning=FALSE}
+plot_of_price <- listings_version3 %>% 
+  filter(price < quantile(price,0.9), price > quantile(price,0.1)) %>% 
+  ggplot(aes(x=price)) + 
+  geom_density()+
+  labs(title="Distribution of price")+
+  scale_x_continuous(breaks = seq(0,4000,500))+
+  theme_bw()
+
+plot_of_price
+```
+
+- price_4_nights
+
+The distribution has one peak and price for 4 nights (for two people actually) are concentrated around $25000.
+
+```{r,plot of price_4_nights, message=FALSE, warning=FALSE}
+# remove scientific notation
+options(scipen=999)
+
+# plot
+plot_of_price_4_nights <- listings_version3 %>% 
+   filter(cleaning_fee < quantile(price_4_nights,0.9), cleaning_fee > quantile(price_4_nights,0.1)) %>% 
+  ggplot(aes(x=price_4_nights)) + 
+  geom_density()+
+  labs(title="Distribution of price_4_nights")+
+  scale_x_continuous(breaks = seq(0,220000,25000))+
+  theme_bw()
+
+plot_of_price_4_nights
+```
+
+- guest_included
+
+The distribution has multiple peaks, indicating that for the price of most properties, only 1 or 2 guests are included. It is likely that when more than two people want to book a property, they will have to pay the extra money (extra_people).
+
+```{r,plot of guest_included, message=FALSE, warning=FALSE}
+plot_of_guests_included <- listings_version3 %>% 
+   #filter(guests_included < quantile(guests_included,0.9), guests_included > quantile(guests_included,0.1)) %>% 
+  ggplot(aes(x=guests_included)) + 
+  geom_density()+
+  labs(title="Distribution of guest included")+
+  scale_x_continuous(breaks = seq(0,20,1))+
+  theme_bw()
+
+plot_of_guests_included
+```
+
+- extra_people
+
+The distribution has four peaks, indicating that the charge for one extra person are likely to be $100, $150, $200, $250.
+
+```{r,plot of extra_people, message=FALSE, warning=FALSE}
+plot_of_extra_people <- listings_version3 %>% 
+  filter(extra_people < quantile(extra_people,0.9), extra_people > quantile(extra_people,0.1)) %>%
+  ggplot(aes(x=extra_people)) + 
+  geom_density()+
+  labs(title="Distribution of extra people")+
+  theme_bw()
+
+plot_of_extra_people
+```
+
+- minimum_nights
+
+Most properties require the stay to be around one to two nights, some require three nights. This corresponds to what we have analysed in the "2.3.1 Skim-Minimum nights" section. Hence we get rid of the observations with over 4 nights.
+
+```{r, plot of minimum_nights, message=FALSE, warning=FALSE}
+plot_of_minimum_nights <- listings_version3%>% 
+  ggplot(aes(x=minimum_nights)) + 
+  geom_density()+
+  labs(title="Distribution of minimum nights")+
+  scale_x_continuous(breaks = seq(0,5,1))+
+  theme_bw()
+
+plot_of_minimum_nights
+
+```
+
+- number_of_reviews
+
+The distribution is bi-modal, indicating that the numbers of reviews are concentrated below 5.
+
+```{r,plot of number of reviews, message=FALSE, warning=FALSE}
+plot_of_number_of_reviews <- listings_version3%>% 
+  filter(number_of_reviews < quantile(number_of_reviews,0.9), number_of_reviews > quantile(number_of_reviews,0.1)) %>%
+  ggplot(aes(x=number_of_reviews)) + 
+  geom_density()+
+  labs(title="Distribution of number of reviews")+
+  scale_x_continuous(breaks = seq(0,55,10))+
+  theme_bw()
+
+plot_of_number_of_reviews 
+```
+
+
+- review_scores_rating
+
+Most review scores rating is above 90, and are most concentrated around 97.5, indicating that most properties receive decent ratings. 
+
+```{r,plot of review_scores_rating, message=FALSE, warning=FALSE}
+plot_of_review_scores_rating <- listings_version3%>% 
+  filter(review_scores_rating < quantile(review_scores_rating,0.9), review_scores_rating > quantile(review_scores_rating,0.1)) %>%
+  ggplot(aes(x=review_scores_rating)) + 
+  geom_density()+
+  labs(title="Distribution of review scores rating")+
+  theme_bw()
+
+plot_of_review_scores_rating
+```
+
+- host_listings_count
+
+Most host have around 1 to 10 listings, and the peak is at 1.
+
+```{r,plot of host_listings_count, message=FALSE, warning=FALSE}
+plot_of_host_listings_count <- listings_version3%>% 
+  ggplot(aes(x=host_listings_count)) + 
+  geom_density()+
+  labs(title="Distribution of host listings count")+
+  xlim(c(0,50)) +
+  theme_bw()
+
+plot_of_host_listings_count
+```
+
+- security_deposit
+
+Most properties do not require security deposit: **NA** + **0** consist of 13182/18964 (69.5%) of the whole dataset.
+
+```{r,plot of security_deposit, message=FALSE, warning=FALSE}
+plot_of_security_deposit <- listings_version3%>% 
+  ggplot(aes(x=security_deposit)) + 
+  geom_density()+
+  labs(title="Distribution of security deposit")+
+  xlim(c(0,10)) +
+  theme_bw()
+
+plot_of_security_deposit
+```
+
+
+#### histogram
+For histograms, we choose to plot `accommodates` (the maximum number of people) as it reflects `beds`, `bathrooms`, and `bedrooms` combined.  
+
+- accommodates
+
+Overall, most accommodates are concentrated around 2 and 4. But the scenario varies from type to type. Because we filtered out outliers before when creating the `listings_version3_filtered`, we are losing information on villa properties. So we plot an additional histogram for villa accommodates.
+
+```{r,plot of accommodates, warning=FALSE, message=FALSE}
+plot_of_accommodates <- listings_version3 %>% 
+  ggplot(aes(x=accommodates)) + 
+  geom_histogram(binwidth = 1)+
+  labs(title="Distribution of accommodates")+
+  xlim(0,15)+
+  #scale_x_continuous(breaks = seq(1,14,1))+
+  theme_bw()
+
+plot_of_accommodates
+
+plot_of_accommodates_by_prop_type <- plot_of_accommodates+
+  facet_wrap(~prop_type_simplified,scale="free")+
+  labs(title="Distribution of accommodates by property type")
+
+plot_of_accommodates_by_prop_type
+
+```
+
+**Explore villa accommodates**  
+
+As the histograms shows, villas accommodate more people than the rest as a large proportion of values are concentrated around 8.
+
+```{r,check what happens with villa, message=FALSE, warning=FALSE}
+listings  %>% 
+  filter(prop_type_simplified=="Villa") %>% 
+  count()
+
+plot_of_accommodates_villa <- listings_version3 %>% 
+  filter(prop_type_simplified=="Villa") %>% 
+  ggplot(aes(x=accommodates)) + 
+  geom_histogram(binwidth = 1)+
+  labs(title="Distribution of villa accommodates")+
+  #xlim(0,15)+
+  scale_x_continuous(breaks = seq(1,20,1))+
+  theme_bw()
+
+plot_of_accommodates_villa
+
+```
+
+#### Bar Plot
+For the bar plots we are using the original dataset `listings_version3` because we do not want to lose too much data.
+
+- room_type
+
+Most of the rooms are entire home/apartment, followed by private room.
+
+```{r, plot of room type, message=FALSE, warning=FALSE}
+data_of_room_type <- listings_version3%>% 
+ group_by(room_type) %>% 
+ summarise(count = n()) %>%
+ mutate(room_type = fct_reorder(room_type, desc(count)))
+
+plot_of_room_type <-  data_of_room_type %>% 
+  ggplot(aes(x=room_type,y=count)) +
+  geom_bar(stat = "identity")+
+  geom_text(aes(label=count), vjust=1.6, color="white", size=3.5)+
+  theme_bw()
+
+plot_of_room_type
+```
+
+
+- neighbourhood_simplified  
+
+```{r, plot of neighbourhood_simplified, message=FALSE, warning=FALSE}
+data_of_neighbourhood_simplified <- listings_version3 %>% 
+ group_by(neighbourhood_simplified) %>% 
+ summarise(count = n()) %>%
+ mutate(neighbourhood_simplified = fct_reorder(neighbourhood_simplified, desc(count)))
+
+plot_of_neighbourhood_simplified <- data_of_neighbourhood_simplified %>% 
+  ggplot(aes(x=neighbourhood_simplified,y=count)) +
+  labs(title="Most properties are located in Atlantic Seaboard")+
+  geom_bar(stat = "identity")+
+  theme_bw()
+
+
+plot_of_neighbourhood_simplified
+```
+
+
+- prop_type_simplified  
+
+```{r, plot of prop_type_simplified , message=FALSE, warning=FALSE}
+data_of_prop_type_simplified <- listings_version3 %>% 
+ group_by(prop_type_simplified) %>% 
+ summarise(count = n()) %>%
+ mutate(prop_type_simplified= fct_reorder(prop_type_simplified,desc(count)))
+
+plot_of_prop_type_simplified <- data_of_prop_type_simplified %>% 
+  ggplot(aes(x=prop_type_simplified,y=count)) +
+  labs(title="Most properties are apartment, followed by house")+
+  geom_bar(stat = "identity")+
+  theme_bw()
+
+plot_of_prop_type_simplified
+```
+
+- host_is_superhost  
+
+```{r, plot of host_is_superhost , message=FALSE, warning=FALSE}
+plot_of_host_is_superhost <- listings_version3%>% 
+  filter(!is.na(host_is_superhost)) %>% 
+  ggplot(aes(x=host_is_superhost)) +
+  labs(title="Most hosts are not superhost")+
+  geom_bar()+
+  theme_bw()
+
+plot_of_host_is_superhost
+```
+
+
+- host_identity_verified
+
+```{r, plot of host_identity_verified, message=FALSE, warning=FALSE}
+plot_of_host_identity_verified <- listings_version3%>% 
+  filter(!is.na(host_identity_verified)) %>% 
+  ggplot(aes(x=host_identity_verified)) +
+  labs(title="Most hosts are not verified")+
+  geom_bar()+
+  theme_bw()
+
+plot_of_host_identity_verified
+```
+
+- cancellation_policy  
+
+Most properties have a cancellation policy of strict 14 days with grace period.
+
+```{r, plot of cancellation_policy , message=FALSE, warning=FALSE}
+# check out the type of cancellation policy
+typeof(listings_version3$cancellation_policy)
+
+# make it a factor variable and prepare the data for plotting
+data_of_cancellation_policy <- listings_version3 %>% 
+ dplyr::select(cancellation_policy)  %>% 
+ mutate(cancellation_policy_f = as.factor(cancellation_policy)) %>% 
+ group_by(cancellation_policy_f) %>% 
+ summarise(count = n()) %>%
+ mutate(cancellation_policy_f= fct_reorder(cancellation_policy_f,desc(count)))
+
+# plot 
+plot_of_cancellation_policy <- data_of_cancellation_policy %>% 
+  ggplot(aes(x=cancellation_policy_f,y=count)) +
+  geom_bar(stat = "identity")+
+  theme_bw()
+
+plot_of_cancellation_policy 
+```
+
+
+### Correlation matrix 
+
+To measure correlation between variables, we use correlation matrix to generate realationship plots and correlation coefficents, which measure both the strength and direction of the linear relationship between two continuous variables.
+
+#### Before plotting
+
+After inspecting the cleaned dataset, we want to focus on the main range of each variable to detect obvious relationships for further informative visualisations. 
+So, we decide to limit values to 10%-90% percentile.
+
+```{r, limit numerical values}
+#quantile(listings_version3$price, probs = c(0.1,0.9))
+#quantile(listings_version3$cleaning_fee, probs = c(0.1,0.9))
+#quantile(listings_version3$extra_people, probs = c(0.1,0.9))
+#quantile(listings_version3$number_of_reviews, probs = c(0.1,0.9))
+#quantile(listings_version3$review_scores_rating, probs = c(0.1,0.9))
+listings_version3_filtered <- listings_version3 %>% 
+                    filter(price_4_nights < quantile(price_4_nights,0.9), price_4_nights > quantile(price_4_nights,0.1),
+                           number_of_reviews < quantile(number_of_reviews,0.9), number_of_reviews > quantile(number_of_reviews,0.1),
+                          review_scores_rating < quantile(review_scores_rating,0.9), review_scores_rating > quantile(review_scores_rating,0.1),
+                          accommodates < quantile(accommodates,0.9), accommodates > quantile(accommodates,0.1))
+                     
+```
+
+There is one thing to notice: this `listings_version3_filtered` is an intersection of all the related variables within [quantile 10%, quantile 90%]. Consequently this is specifically for the production of informative plots within several variables at one time, such as "correlation matrix". 
+
+#### Correlation matrix in numeric variables
+
+```{r, correlation matrix1 in numeric variables, message=FALSE, warning=FALSE}
+# produce scatterplot-correlation matrix using GGally::ggpairs()
+# remove scientific notation
+options(scipen=999)
+# listings
+correlation_matrix1 <- listings_version3_filtered %>% 
+  dplyr::select(price_4_nights, number_of_reviews, review_scores_rating, accommodates) %>% 
+  GGally::ggpairs(alpha = 0.4)
+   
+#load library here
+library(here)
+ggsave("correlation_matrix1.jpg",plot = correlation_matrix1 ,path=here::here("images"), width = 17, height = 10)  
+  knitr::include_graphics(here::here("images", "correlation_matrix1.jpg"))
+
+```
+
+**Interpreting correlations between variables**
+
+From the correlation matrix above, we can see that`accommodates` and `price_4_nights` are positively correlated with an coefficient of 0.234.
+
+Significant correlation also exists between `number_of_reviews` & `review_scores_rating`(0.354). `number_of_reviews` is significantly correlated with `accomodates`, sharing a correlation coefficient of -0.075** .
+
+#### Correlation matrix in `neighbourhood_simplified` and numerical variables
+```{r, correlation matrix2 when adding categorical variables, message=FALSE, warning=FALSE}
+# produce scatterplot-correlation matrix using GGally::ggpairs()
+# remove scientific notation
+options(scipen=999)
+correlation_matrix2 <-listings_version3_filtered %>% 
+  dplyr::select(price_4_nights, number_of_reviews, review_scores_rating, accommodates,neighbourhood_simplified) %>% 
+  GGally::ggpairs(aes(color = neighbourhood_simplified), alpha = 0.4)
+
+
+#load library here
+library(here)
+ggsave("correlation_matrix2.jpg", plot = correlation_matrix2, path=here::here("images"), width = 17, height = 10)  
+  knitr::include_graphics(here::here("images", "correlation_matrix2.jpg"))
+
+```
+
+**Interpreting correlations between variables**
+
+Categorizing by `neighbourhood_simplified`, we can specify clear correlations between numerical variables in details.
+`price_4_nights` is significantly correlated with `number_of_reviews` in "Atlantic Seaboard"(-0.071) and "CBD"(-0.276), 
+
+`price` is significantly correlated with `review_scores_rating` in "Southern Suburbs"(0.569).
+
+The above two types of trends show that different neighbourhoods do have different levels of impact on the relationship between price_4_nights and `number_of_reviews` / `review_scores_rating`. 
+
+Take "Southern Suburbs" as an example. Cape Town's "Southern Suburbs" is identified as being the more affluent of the Cape Town Metropolis' sections and includes the city's most expensive residential neighbourhoods. Hence here may exist more evident linear relationship between `price_4_nights` and `review_scores_rating` since people think of the experience of the trip and accommodation fully deserves the price. We will further look at whether this correlation appears to be conditional on the value of `neighbourhood_simplified` below.
+
+From the three boxplots above, we can conclude the distribution of `price_4_nights`, `number_of_reviews` and `review_scores_rating` among different `neighbourhood_simplified`. Listings in "Atlantic seaboard" always rank ahead in the `price_4_nights` and `number_of_reviews`.
+
+While `price_4_nights` and `number_of_reviews` of listings in "Atlantic Seaboard" are above average, `review_scores_rating` in this area is inconsistently low. From our knowledge, "Atlantic Seaboard" is often used by locals to describe the residential/ commercial  areas facing the Atlantic seaboard and in front of table mountain. And the low rating may be because people do not think of luxury apartments as a good bargain.
+
+#### Correlation matrix in `prop_type_simplified` and numerical variables
+
+```{r, correlation matrix3 when adding categorical variables, message=FALSE, warning=FALSE}
+# produce scatterplot-correlation matrix using GGally::ggpairs()
+# remove scientific notation
+options(scipen=999)
+correlation_matrix3 <-listings_version3_filtered %>% 
+  dplyr::select(price_4_nights, number_of_reviews, review_scores_rating, accommodates,prop_type_simplified) %>% 
+  GGally::ggpairs(aes(color =  prop_type_simplified), alpha = 0.4)
+
+# load library here
+library(here)
+ggsave("correlation_matrix3.jpg", plot = correlation_matrix3, path=here::here("images"), width = 17, height = 10)  
+  knitr::include_graphics(here::here("images", "correlation_matrix3.jpg"))
+```
+
+**Interpreting correlations between variables**
+
+Categorizing by `prop_type_simplified`, we can specify clear correlations between numerical variables in details. Indeed, different types of property do have different levels of impact on the relationship between price and other variable.
+
+`price_4_nights` is significantly correlated with `number_of_reviews` in "guest suite" (0.188), while being non-significant in other property types. Overall, `price_4_nights` and `review_scores_rating` are significantly correlated: apartment (0.196), house(0.261), other(0.229).
+
+Regarding the relationship between `review_scores_rating` and `number_of_reviews`, there exists a significant correlation however less obvious among villas.
+
+Now let's delve into the property type. From the boxplots above, we can conclude the distribution of `price_4_nights`, `number_of_reviews` and `review_scores_rating` among different `prop_type_simplified`. Overall, "Guests suide" have the highest `number_of_reviews` and `review_scores_rating` although the `price_4_nights` for it is fairly low. This is probably because "Guests suide" has fewer data points. Meanwhile, people might think of it as the most rewarding experience with good price.
+
+
+#### Correlation matrix in `room_type` and numerical variables 
+
+```{r, correlation matrix4 when adding categorical variables, message=FALSE, warning=FALSE}
+# produce scatterplot-correlation matrix using GGally::ggpairs()
+# remove scientific notation
+options(scipen=999)
+correlation_matrix4 <-listings_version3_filtered %>% 
+# filter variables of interest 
+  dplyr::select(price_4_nights, number_of_reviews, review_scores_rating, accommodates,room_type) %>% 
+  GGally::ggpairs(aes(color = as.factor(room_type)), alpha = 0.4)
+
+# load library here
+library(here)
+ggsave("correlation_matrix4.jpg", plot = correlation_matrix4, path=here::here("images"), width = 17, height = 10)  
+knitr::include_graphics(here::here("images", "correlation_matrix4.jpg"))
+
+```
+
+**Interpreting correlations between variables**
+
+Categorizing by `prop_type_simplified`, we can specify clear correlations between numerical variables in details. Indeed, different types of property do have different levels of impact on the relationship between price and other variable.
+
+`price_4_nights` 's negative correlation with `number_of_reviews` is only significant among entire home/apartment (-0.004), but the positive correlation with `accommodates` is significant among all property types except for hotel rooms. It could be that hotel rooms usually charge under their operation rules so the impact of accommodates are less significant.
+
+Regarding the boxplots, it is evident that the `price_4_nights` varies from type to type, with hotel room being the most expensive. Please note that we filtered data here so the findings are just for reference.
+
+
+### Correlations conditional on categorical variable 
+
+#### Plot1
+**price_4_nights X number_of_reviews by neighborhood_simplified**
+
+```{r, price_4_nights and number_of_reviews, message=FALSE, warning=FALSE} 
+price_4_nights_number_of_reviews_1 <- listings_version3 %>% 
+  filter(price_4_nights < quantile(price_4_nights,0.9), price_4_nights > quantile(price_4_nights,0.1)) %>% 
+  filter(number_of_reviews < quantile(number_of_reviews,0.9), number_of_reviews > quantile(number_of_reviews,0.1)) %>%
+  ggplot2::ggplot(aes(x = number_of_reviews , y = price_4_nights))+
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~neighbourhood_simplified)+
+  labs(title = "'CBD' and 'Atlantic Seaboard' sees strong relationship between price_4_nights and number_of_reviews", 
+       subtitle = "correlation comparison conditional on neighbourhoods",
+       x = "number_of_reviews")+
+  theme_bw()+
+  NULL
+
+
+ggsave("price_4_nights_number_of_reviews_1.jpg", plot = price_4_nights_number_of_reviews_1, path=here::here("images"), width = 15, height = 10)  
+knitr::include_graphics(here::here("images", "price_4_nights_number_of_reviews_1.jpg"))
+
+```
+The graph above appears to be indicating correlations conditional on neighbourhoods."Cape Flats", "Sommerset", and "Southern Suburbs" have fewer observation points than "Atlantic Seaboard" and "CBD", which might be a guess answer to the weak correlations. 
+
+It can be concluded that properties in different regions attract visitors to leave reviews at different levels, though probably not that obvious considering they still belong to the same metropolitan. For instance, people who go on business trip tend not to leave a review, while leisure travellers tend to do that.
+
+
+#### Plot2 
+**price_4_nights X accommodates by neighborhood_simplified**
+
+```{r, price_4_nights_accommodates_by_neighborhood_simplified,message=FALSE, warning=FALSE} 
+price_4_nights_accommodates_byneighborhood <- listings_version3 %>% 
+  filter(price_4_nights < quantile(price_4_nights,0.9), price_4_nights > quantile(price_4_nights,0.1)) %>% 
+  filter(accommodates < quantile(accommodates,0.9), accommodates > quantile(accommodates,0.1)) %>% 
+  ggplot2::ggplot(aes(x = as.factor(accommodates), y = price_4_nights))+
+  geom_boxplot()+
+  facet_wrap(~neighbourhood_simplified)+
+  #scale_x_continuous(limits = c(75,300))+
+  #scale_y_continuous(limits = c(0,3000))+
+  labs(title = " 'Atlantic Seaboard' sees highest average price_4_nights across accommodates", 
+       subtitle = "Correlation comparison conditional on neighbourhoods",
+       x = "accommodates")+
+  theme_bw()+
+  NULL
+
+ggsave("price_4_nights_accommodates_byneighborhood.jpg", plot = price_4_nights_accommodates_byneighborhood, path=here::here("images"), width = 15, height = 10)  
+knitr::include_graphics(here::here("images", "price_4_nights_accommodates_byneighborhood.jpg"))
+
+```
+
+#### Plot3
+**price_4_nights X accommodates by prop_type_simplified**
+
+```{r, price_4_nights_accommodates_by prop_type_simplified,message=FALSE, warning=FALSE} 
+price_4_nights_accommodates_byprop<- listings_version3 %>% 
+  filter(price_4_nights < quantile(price_4_nights,0.9), price_4_nights > quantile(price_4_nights,0.1)) %>% 
+  filter(accommodates < quantile(accommodates,0.9), accommodates > quantile(accommodates,0.1)) %>% 
+  ggplot2::ggplot(aes(x = as.factor(accommodates), y = price_4_nights))+
+  geom_boxplot()+
+  facet_wrap(~prop_type_simplified)+
+  #scale_x_continuous(limits = c(75,300))+
+  #scale_y_continuous(limits = c(0,3000))+
+  labs(title = " 'House' sees most significant positive relationship ", 
+       subtitle = "Correlation comparison conditional on property type",
+       x = "accommodates")+
+  theme_bw()+
+  NULL
+
+ggsave("price_4_nights_accommodates_byprop.jpg", plot = price_4_nights_accommodates_byprop, path=here::here("images"), width = 15, height = 10)  
+knitr::include_graphics(here::here("images", "price_4_nights_accommodates_byprop.jpg"))
+
+```
+
+
+
+# Mapping
+## Prepare the dataset for mapping
+
+```{r, cleaning before leaflet mapping}
 library(kableExtra)
 
-# sex and its frequencies table
-sex_freq <- table(covid_data$sex) %>% 
-  as.data.frame() %>% 
-  rename(Sex_type=Var1)
-kbl(sex_freq) %>%   
-  kable_styling(full_width = F) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+# check out the unique values for each variable
+# for property_type
+unique(listings$property_type)
+table(listings$property_type) %>% 
+                    kbl()
 
-# age group and its frequencies table
-age_group_freq <- table(covid_data$age_group) %>% 
-  as.data.frame() %>% 
-  rename(Age_group=Var1)
-kbl(age_group_freq ) %>%   
-  kable_styling(full_width = F) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-
-# co-morbidities and its frequencies table
-medcond_yn_freq <- table(covid_data$medcond_yn) %>% 
-  as.data.frame() %>% 
-  rename(Whether_comorbidities=Var1)
-kbl(medcond_yn_freq) %>%   
-  kable_styling(full_width = F) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-# icu and its frequencies table
-icu_freq <- table(covid_data$icu_yn)%>% 
-  as.data.frame() %>% 
-  rename(Whether_ICU=Var1)
-kbl(icu_freq) %>%   
-  kable_styling(full_width = F) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-
-# death and its frequencies table
-death_yn_freq <- table(covid_data$death_yn) %>% 
-  as.data.frame() %>% 
-  rename(Whether_dead=Var1)
-kbl(death_yn_freq) %>%   
-  kable_styling(full_width = F) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-
-```
-Now we know that there are observations that have missing, other, unknown values.
-
-## Plot 1 Co-morbidities
-Before we plot, we need to clean the data and add a new column of death rate by age_group, sex, and whether there is presence of co-morbidities.
-```{r covid_death_rate_comorbidities prep}
-# clean the data
-covid_data_cleaned1 <- covid_data %>% 
-  filter(death_yn == "Yes" | death_yn == "No") %>% 
-  filter(sex == "Female" | sex == "Male") %>% 
-  filter(age_group != "Unknown") %>% 
-  filter(medcond_yn =="No"| medcond_yn == "Yes")  %>% 
-  select (sex, age_group,medcond_yn, death_yn) %>%
-  group_by(age_group,sex,medcond_yn) %>%
-  summarize(death_y = count(death_yn=="Yes"),death_n = count(death_yn=="No"),total = n()) %>% 
-  mutate(death_rate=death_y/total)   %>% 
-  mutate(death_rate_label = round(100*death_rate,1)) %>%  # this makes it in percentage
-  arrange(desc(death_rate)) 
-
-# we also need to reorder the medcond_yn and add label to it (for the plot)
-covid_data_cleaned1$medcond_yn<- factor(covid_data_cleaned1$medcond_yn, 
-                                        levels = c("Yes","No"),
-                                        labels=c("With comorbidities","Without comorbidities"))
-head(covid_data_cleaned1) 
+# use listings because we need the url
+listings_formapping   <- listings %>% 
+                                  dplyr::select(longitude, latitude, listing_url, property_type,price,minimum_nights,prop_type_simplified)
 
 
-# FYI: Here we can also use the tally() function
-# group_by(sex, age_group,medcond_yn,death_yn) %>% tally()
+# before mapping color to price, check price distribution
+# check summary statistics
+favstats(listings_formapping$price)
+# Quantile 10% to quantile 90% 
+quantile(listings_formapping$price,probs = c(0.1,0.9))
+
+
+# filtering some data
+listings_formapping%>% 
+  ggplot(aes(x=price)) + 
+    geom_histogram(fill='#69b3a2', color='white') +
+    xlab("Price per night") + 
+    xlim(c(400,3500))+ 
+    theme_bw()
+# create the dataset of properties we need to map
+listings_formapping_final <- listings_formapping %>% 
+                                filter(price<=3453.4, price >= 416,minimum_nights <= 4)
 ```
 
+**Data cleanings**  
 
-```{r covid_death_rate_comorbidities plot}
-library(scales)
-comob <- ggplot(covid_data_cleaned1, aes(x=age_group,y=death_rate,label=death_rate_label))+
-         geom_col(fill="#697aa1",alpha=0.8)+
-         coord_flip()+
-         facet_grid(medcond_yn~sex)+
-         geom_text( position = position_dodge(1), 
-                    hjust = -0.25, 
-                    size = 3) + 
-        labs(x="",y="",
-             title = "Covid death % by age group, sex and presence of co-morbidities",
-             caption = "Source:CDC") +
-        scale_y_continuous(labels = scales::percent,limits=c(0,0.75))+ 
-        theme_bw()+
-        theme(title = element_text(size=8, colour="black"))
+We found that for price per night, the distribution is right-skwed, with the 10% quantile of 416.0 and the 90% quantile of 3453.4. And since we will color the properties according to its price, we filter the outliers smaller than 416 and larger than 3453.4 and make a new dataset just for the leaflet mapping. 
 
-#comob
-ggsave("comord.jpg",plot=comob,path=here::here("images"),width = 20,height = 13)
-knitr::include_graphics(here::here("images", "comord.jpg"))
+
+## Actual mapping 
+### The basic map  
+The variables we use are price, longitude, latitude, listing_url, and property_type. 
+The label shows the `prop_type_simplified` ; the pop up shows its price per night and the corresponding url.
+
+```{r, leaflet mapping basic}
+# load the leaflet package
+library(leaflet)
+# just use price per se
+# add layers indicating the property type
+library(RColorBrewer)
+# assign color palette
+# we can do colorNumeric or colorQuantile but to display price, we choose the former
+pal <- colorNumeric(
+  palette = "PuBuGn",
+  domain = c(0,3500),
+  n = 5
+  )
+
+# create a  basic map
+map1 <- leaflet(data =listings_formapping_final
+        ) %>% 
+  addProviderTiles("OpenStreetMap.Mapnik") %>% 
+  # set the initial view
+  setView( lat=-34, lng=18.5 , zoom=8) %>%
+  # add the circles
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 1, 
+                   color = ~pal(price),
+                   fillOpacity = 0.4, 
+                   # popup shows price per night and url
+                   popup = ~paste0("<b>","$",price," per night","</b>"," <br/>",listing_url),
+                   label = ~prop_type_simplified) %>% 
+  # add legends
+    addLegend(pal=pal, values=~price, opacity=0.9, 
+              title = "Price per night", position = "bottomleft")
+
 ```
 
-## Plot 2 ICU
-For plot 2, we apply the same logic of cleaning and plotting, just slightly modifying the facet variable and the color of fill.
-```{r covid_death_rate_icu}
-# clean the data
-covid_data_cleaned2 <- covid_data %>% 
-  # filter(current_status == 'Laboratory-confirmed case') %>% 
-  filter(death_yn == "Yes" | death_yn == "No") %>% 
-  filter(sex == "Female" | sex == "Male") %>% 
-  filter(age_group != "Unknown") %>% 
-  filter(icu_yn =="No"| icu_yn == "Yes")  %>% 
-  select (sex, age_group,icu_yn, death_yn) %>%
-  group_by(age_group,sex,icu_yn) %>%
-  summarize(death_y = count(death_yn=="Yes"),death_n = count(death_yn=="No"),total = n()) %>% 
-  mutate(death_rate=death_y/total)   %>% 
-  mutate(death_rate_label = round(100*death_rate,1)) %>% # this makes it in percentage
-  arrange(desc(death_rate))
 
-#covid_data_cleaned2
-
-# we need to reorder the category
-covid_data_cleaned2$icu_yn<- factor(covid_data_cleaned2$icu_yn, 
-                                    levels = c("Yes","No"),
-                                    labels = c("Admitted to ICU","No ICU"))
-
-#why the numbers are different but close?
-icu <-ggplot(covid_data_cleaned2, aes(x=age_group,y=death_rate,label=death_rate_label))+
-         geom_col(fill="#ff9582",alpha=0.7)+
-         coord_flip()+
-         facet_grid(icu_yn~sex)+
-         geom_text(position = position_dodge(1), 
-                    hjust = -0.25, 
-                    size = 3) +
-        labs(x="",y="",
-             title = "Covid death % by age group, sex and whether patient was admitted to ICU",
-             caption = "Source:CDC") +
-        scale_y_continuous(labels = scales::percent,limits=c(0,0.9))+
-        theme_bw()+
-        theme(title = element_text(size=8, colour="black"))
-   
-#icu
-ggsave("icu.jpg",plot=icu,path=here::here("images"),width = 20,height = 13)
-knitr::include_graphics(here::here("images", "icu.jpg"))
+**Airbnb listings in Cape Town**
+```{r echo=FALSE}
+map1
 ```
 
-## Findings
 
-The first plot shows that overall as patients age, death rate also grows. And among patients with co-morbidities, death rates are higher. It is noteworthy that the death rate is considerably high among the group of male patients aged above 70 years old with co-morbidities (above 70%). While for the group of male and female patients aged between 10 and 19 without co-morbidities, the death rate is close to 0%. But for children under the age of 9, death rate goes up to 0.1% even without co-morbidities.  
-The second plot tells a similar story. As patients age, death rate increases. And as expected, patients admitted to ICU are likely to experience more severe symptoms and hence higher death rate. The gender difference we observed from the first plot still holds true.  
-When we investigate the death rate across these two plots, it is obvious among the group of same gender and age tier,if not suffer from both, those with co-morbidities  are more likely to survive than those admitted into ICU. 
+### The map with layers of property types
+For a clearer view, we use Leaflet's layers control feature for this new mapping. We can toggle the visibility of different property types to show by clicking on the layer control.
+And the properties are colored based on its `price`.
+
+```{r, leaflet with layers}
+# check the property type simplified (we have 5 groups)
+listings_formapping_final %>% 
+  count(prop_type_simplified) %>% 
+  arrange(desc(n))  
+
+
+# create a more complicated map with layers indicating property types
+map2_base <- leaflet(data =listings_formapping_final
+        ) %>% 
+  addProviderTiles("OpenStreetMap.Mapnik") %>% 
+  # set the initial view
+  setView( lat=-34, lng=18.5 , zoom=10) 
+  
+
+# create individual datasets for each property type
+m2_apartment <- listings_formapping_final %>% filter(prop_type_simplified == "Apartment")
+m2_other <- listings_formapping_final %>% filter(prop_type_simplified == "Other")
+m2_house <- listings_formapping_final %>% filter(prop_type_simplified == "House")
+m2_guest <- listings_formapping_final %>% filter(prop_type_simplified == "Guest suite")
+m2_villa <- listings_formapping_final %>% filter(prop_type_simplified == "Villa")
+
+
+  # add the circles for Apartment
+map2_with_layers <- map2_base %>% addCircleMarkers(data = m2_apartment,
+                   lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 1, 
+                   color = ~pal(price),
+                   fillOpacity = 0.4, 
+                   # set the pop up to be listing url
+                   # popup shows price per night and url
+                   popup = ~paste0("<b>","$",price," per night","</b>"," <br/>",listing_url),
+                   # set the label to be property_type
+                   label = ~property_type,
+                   group = "Apartment") %>% 
+  
+  # add the circles for House
+    addCircleMarkers(data = m2_house,
+                   lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 1, 
+                   color = ~pal(price),
+                   fillOpacity = 0.4, 
+                  # popup shows price per night and url
+                   popup = ~paste0("<b>","$",price," per night","</b>"," <br/>",listing_url),
+                   label = ~property_type,
+                   group = "House") %>% 
+  
+  # add the circles for Guest suite
+    addCircleMarkers(data = m2_guest,
+                   lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 1, 
+                   color = ~pal(price),
+                   fillOpacity = 0.4, 
+                   # popup shows price per night and url
+                   popup = ~paste0("<b>","$",price," per night","</b>"," <br/>",listing_url),
+                   label = ~property_type,
+                   group = "Guest suite") %>% 
+  
+  # add the circles for Villa
+    addCircleMarkers(data = m2_villa,
+                   lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 1, 
+                   color = ~pal(price),
+                   fillOpacity = 0.4, 
+                   # popup shows price per night and url
+                   popup = ~paste0("<b>","$",price," per night","</b>"," <br/>",listing_url),
+                   label = ~property_type,
+                   group = "Villa") %>% 
+  
+    # add the circles for Other
+    addCircleMarkers( data = m2_other,
+                lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 1, 
+                   color = ~pal(price),
+                   fillOpacity = 0.4, 
+                  # popup shows price per night and url
+                   popup = ~paste0("<b>","$",price," per night","</b>"," <br/>",listing_url),
+                # here we used the original property type for group other
+                   label = ~property_type,
+                   group = "Other") %>% 
+  
+  # add layer control
+  addLayersControl(overlayGroups = c("Apartment","House","Guest suite","Villa","Other")) %>% 
+  # add legends
+    addLegend(pal=pal, values=~price, opacity=0.9, 
+              title = "Price per night", position = "bottomleft")
+
+```
+
+
+**Airbnb listings in Cape Town by property type**
+
+```{r echo=FALSE}
+map2_with_layers
+```
+
+
+**Initial Findings**  
+
+Based on the map above, we observe location and price difference between various types of properties.
+
+- For apartments, those near the coastline, for example Three Anchor Bay (belongs to Atlantic seaboard), have higher price per night. 
+- For houses, those located in Newlands, Bishopscoutr (belong to Southern Suburbs) are more expensive.
+- For guest suites, those located in the Glen, Bakoven, and Rontree (also belong to Atlantic seaboard) cost more.
+- For villas, the properties seem rather scattered around and are mostly priced above $1,500 per night.
+- For properties that belong to other types, the distribution looks similar to that of apartments.
+
+To conclude: 
+
+- In terms of location, properties near the coastlines (Atlantic seaboard) are more likely to be expensive because they have better views.
+- In terms of the property type and price, houses and villas generally have higher price per night, while guest suites have lower price per night.
+
+# Regression & Model Diagnostics
+
+## Checking the underlying distribution and applying necessary transformations
+We begin our regression by plotting the underlying distribution of the 'price_4_nights' variable to check for normality of the dependent variable price_4_nights.
+
+
+```{r, price4nights}
+ggplot(data=listings_version3, aes(x=price_4_nights))+
+  geom_density()+
+  labs(title = "Density of  Price for 2 people for 4 nights at an AirBNB")+
+  theme_bw()
+
+ggplot(data=listings_version3, aes(x=log(price_4_nights)))+
+  geom_density()+
+  labs(title = "Density of  log transformed Price for 2 people for 4 nights at an AirBNB")+
+  theme_bw()
+
+ggplot(data=listings_version3, aes(x=sqrt(price_4_nights)))+
+  geom_density()+
+  labs(title = "Density of square root transformed Price for 2 people for 4 nights at an AirBNB")+
+  theme_bw()
+
+ggplot(data=listings_version3, aes(bcPower(price_4_nights,lambda=-0.25)))+
+  geom_density()+
+  labs(title = "Density of box-cox transformed Price for 2 people for 4 nights at an AirBNB")+
+  theme_bw()
+
+
+```
+When analyzing the underlying distribution of price for 2 people for 4 nights, we notice the underlying data is not normally distributed and running a regression will violate the normality assumption.We then attempted a number of transformations to correct this issue. First we tried a log transformation on the dependent Y (price_4_nights) which seemed to correct the distribution, while also attempting to both a square root and [box cox transformation](https://www.statisticshowto.com/box-cox-transformation/#:~:text=A%20Box%20Cox%20transformation%20is,a%20broader%20number%20of%20tests.)(bcPower) with lamda=-0.25, the square root did not seem to correct the non-normality, while the box-cox transformation seemed to improve the non-normality and skewness the most. For this reason we will consider 3 possible models, namely: the un-transformed ,log-transformed and box-cox transformed and discuss each of their diagnostics throughout.
+
+
+```{r,regression_test_and_model_data}
+library(rsample) #here we divide the data in modeling and test data
+set.seed(1235)# for reproducibility set seed
+
+model_test_split <- initial_split(listings_version3, prop=0.8) #splitting the data into a modeling set and testing set. Choosing an 80-20 split
+listings_model <- training(model_test_split)#model data group
+listing_test <- testing(model_test_split)#testing set
+
+
+```
+
+
+## Initial model considering Property Types,Number of Reviews and Review scores as possible influential factors.
+
+### Un-transformed model
+```{r,intial_model}
+model1 <-lm(price_4_nights~prop_type_simplified+number_of_reviews+review_scores_rating, data=listings_model)
+
+summary(model1)
+plot(model1)
+hist(rstandard(model1))
+vif(model1)
+bptest(model1)
+outlierTest(model1)
+
+
+```
+Initial analysis of model1 of  untransformed price_4_nights against some intuitive explanatory variables: Property Type(simplified),Number of Reviews and Review Score Rating yields a rather weak model with serious violations of underlying assumptions.
+
+The Adjusted R squared reveals that this model only explains approximately 12% of the variability in the dependent variable. It assumes Apartment property types as a base and from the summary we can see that the property being a guest suite is a significant variable and reduces the price by 2491.337, while renting a house or villa is  also significant factor and increases the price in comparison to renting an apartment by 1658.674  and  49620.250   respectively on average over 4 nights for 2 people. Other property types are not significant. Number of reviews also proved to be significant ,however, the review rating does not seem to be significant at the 5% level. It's interesting to note that more reviews equates to a lower price (-33.38 per review)whereas the quality of reviews does not seem to have a significant effect.
+
+Plotting the standardized residuals and Normal-QQ plot reveals the non-normality of the data, we then conducted a [Breusch-Pagan test](https://en.wikipedia.org/wiki/Breusch%E2%80%93Pagan_test) (BP test) which confirmed suspicion of [Heteroscedasticity](https://en.wikipedia.org/wiki/Heteroscedasticity), This can be seen in the residuals vs fitted plot. These violations of underlying assumptions of multiple-regression make this model flawed and thus we will no longer consider the untransformed model.It can be noted that no particular observations was beyond  [0.5 Cook's Distance](https://www.mathworks.com/help/stats/cooks-distance.html#:~:text=Cook's%20distance%20is%20the%20scaled,on%20the%20fitted%20response%20values.) however, when running an outlier test, this revealed 10 possible outliers that we may want to consider removing to correct the underlying issues. However, as there are 15164 observations we deemed that removing these  10 outliers may have little to no effect.
+
+
+
+### Log transformed model
+
+```{r,model_lm}
+model1t <-lm(log(price_4_nights)~prop_type_simplified+number_of_reviews+review_scores_rating,data=listings_model) #running the same variables on a log transformed test 
+
+summary(model1t)
+plot(model1t)
+hist(rstandard(model1t))
+vif(model1t)
+bptest(model1t)
+
+
+```
+Due to the non-normality issues of the underlying residuals we analyze the log transformation to the dependent variable. This seems to correct the non-normality of the residuals as shown by the increase in slope and fit of the Normal-QQ plot, and more normal looking distribution of the standard residuals histogram. We also have a higher Adjusted R squared(approx 16%) and thus conclude that the log transformed model is a better estimate of price for 4 nights. We will thus continue the analysis considering the log transformed model. However we note that the residuals vs fitted plot again reveals heteroscedasticity issues that should be corrected. The VIF test reveals no multi-collinearity issues and we once again run an outlier test to identify possible observations that could be removed in order to improve the model.
+
+### Box-Cox Model
+```{r,model_box_cox}
+model1_box <-lm(bcPower(price_4_nights,lambda=-0.25)~prop_type_simplified+number_of_reviews+review_scores_rating, data=listings_model) #box cox lm model on 3 variables
+
+summary(model1_box)
+plot(model1_box)
+hist(rstandard(model1_box))
+bptest(model1_box)
+vif(model1_box)
+outlierTest(model1_box)
+```
+
+While the box-cox transformation seemed to correct the underlying non-normality  the most succesfully (see QQ-plot and histogram of residuals ),this transformation yielded a rather weak Adjusted R-squared of 12.43% meaning very little variability is being captured in this model. The log transformation seems to yield a stronger result while still maintaining normality. This model also seems to reflect heteroscedasticity issues(shown by residuals vs fitted plot and failing the BP test), however we will continue this analysis using both the box-cox and log transformed model.VIF test reveals no multi-colinearity issues and we once again run an outlier test to identify possible observations that could be removed in order to improve the model.
+
+
+## **Considering room type as a factor:**
+We now proceed to consider an additional dependent variable room_type (Room Type), We hypothesize this factor to have a significant effect and that room types that are generally smaller or shared are cheaper than entire homes.
+
+
+### Log transformation model with room type
+```{r,model_log_roomtype_added}
+
+model2_log <-lm(log(price_4_nights)~prop_type_simplified+number_of_reviews+review_scores_rating+room_type, data=listings_model)
+
+summary(model2_log)
+plot(model2_log)
+hist(rstandard(model2_log))
+bptest(model2_log)
+vif(model2_log)
+outlierTest(model2_log)
+```
+
+The log transformed model showed significant improvement with the addition of the room type independent variable. Adjusted R-squared significantly increased from 16% to 28%. Using room type Entire Apt  and property type apartment as a base all explanatory variables are now significant at the 5 % level except for room_type Hotel. Our intercept marginally increases meaning there was an increase in average price. The addition of room types also alters the slope of the co-efficient for some of the other factors. Property types Guest suite slope reduces in magnitude while all other factors in property type appear to increase in magnitude with property type 'Other' becoming significant. Review score rating also becomes significant which it was not before. And while the fitted vs residuals plot also showed improvement we note that it again fails the BP test and we have not solved the heteroscedasticity issues. VIF reveals no multi-colinearity issues and we once again identify possible outliers, which we will continue to do for the remaining models.
+
+### Box cox transformation model with room type
+```{r,model_box_roomtype}
+
+model2_box <-lm( bcPower(price_4_nights,lambda=-0.25)~prop_type_simplified+
+                   number_of_reviews+
+                   review_scores_rating+
+                   room_type, data=listings_model) 
+
+summary(model2_box)
+plot(model2_box)
+hist(rstandard(model2_box))
+bptest(model2_box)
+vif(model2_box)
+outlierTest(model2_box)
+
+```
+The box-cox transformed model also showed significant improvement with the addition of the room type independent variable. Adjusted R-squared significantly increased from ~12.5% to ~27%. Using room type Entire Apt  and property type apartment as a base model all explanatory variables are now significant at the 5 % level. Just as in the log model we note that the data still reflects heteroscedasticity issues. Both the log transformed and box-cox, however, seem to have maintained normality in their residuals so we will continue assessing both models by next considering if number of  bathrooms, bedrooms, beds, or size of the house (accomodates) significantly predict (price_4_nights)Price for 4 nights. We can conclude our hypothesis was correct and that room type is a significant predictor in Price for 4 nights
+
+## Considering beds,Bathrooms,Bedrooms and Size Factor:
+
+Next we consider adding beds,bathrooms,bedrooms and size(accommodates) as we believe these quantitative factors should be able to capture more of the variability in the model.
+### Log model
+```{r,log adding beds, bath and beyond}
+
+model3_log_BBB <-lm(log(price_4_nights)~prop_type_simplified+ #adding bed bathrooms, bedrooms and size(accoommodates)
+                      number_of_reviews+
+                      review_scores_rating+
+                      room_type+bathrooms+
+                      #bedrooms+
+                      beds+
+                      accommodates, 
+                    data=listings_model)
+
+
+summary(model3_log_BBB)
+plot(model3_log_BBB)
+hist(rstandard(model3_log_BBB))
+vif(model3_log_BBB)
+bptest(model3_log_BBB)
+outlierTest(model3_log_BBB)
+
+```
+Adding Bed, Bathrooms and bedrooms and size factors to the log model seemed to dramatically improve the adjusted R-squared from ~28% to ~45%. All factors are significant at the 5% level,except for house property types having no significant effect with respect to the base (apartment property types). We continuously check the residuals plots which seem to show improvements in heteroscedasticity issues (as shown by the fitted vs residuals) we also see that listing 12543 falls outside of the 0.5 cooks distance and is an influential point that should be removed for model improvement. We also noted that bedrooms had a VIF>5 and thus showed multi-colinearity issues, we chose to remove it and run the model again which showed no multi-colinearity issues. Outliers were identified and examined.
+
+### Box-Cox model with beds,bathrooms,bedrooms and size
+```{r,box adding beds, bath and beyond}
+
+model3_box_BBB <-lm(bcPower(price_4_nights,lambda = -0.25)~prop_type_simplified+ #adding bed bathrooms, bedrooms and size(accoommodates)
+                      number_of_reviews+
+                      review_scores_rating+
+                      room_type+bathrooms+
+                      #bedrooms+
+                      beds+
+                      accommodates, 
+                    data=listings_model)
+
+
+summary(model3_box_BBB)
+plot(model3_box_BBB)
+hist(rstandard(model3_box_BBB))
+bptest(model3_box_BBB)
+vif(model3_box_BBB)
+outlierTest(model3_box_BBB)
+
+```
+Adding Bed, Bathrooms and bedrooms and size factors to the box cox model seemed to also dramatically improve the adjusted r-squared from ~27% to ~43%. All factors are significant at the 5% level with underlying equation assuming apartment property type as a base. We check the residual plots  again which seems to show improvement in heteroscedasticity issues(as shown by the fitted vs residuals and Scale-Location plots) we also see again that listing 12543 falls outside of the 0.5 Cook's distance and is an influential point that should be removed for model improvement. We also noted that bedrooms had a VIF greater than 5 and thus showed multi-collinearity issues, we therefore chose to remove it and run the model again which, this time, showed no multi-collinearity issues. Outliers were identified and examined.
+
+## Considering host effects on Price:
+
+We aim to improve our Adjusted r-squared by considering the effects that hosts have on prices.We examine if being a 'super host', having a high number of other listings and having their identification verified affects prices while still including previous significant factors from the previous model.
+
+### Log model including host effects factors**
+```{r, Host_effects}
+model4_log_hosts <-lm(log(price_4_nights)~prop_type_simplified+
+                      number_of_reviews+
+                      review_scores_rating+
+                      room_type+bathrooms+
+                      #bedrooms+
+                      beds+
+                      accommodates+host_is_superhost+ #added host effects
+                        host_total_listings_count+
+                        host_identity_verified, 
+                    data=listings_model)
+
+
+summary(model4_log_hosts)
+plot(model4_log_hosts)
+hist(rstandard(model4_log_hosts))
+bptest(model4_log_hosts)
+vif(model4_log_hosts)
+outlierTest(model4_log_hosts)
+
+```
+The inclusion of host characteristics again improved our adjusted-R squared  (but not that significantly) from 45% to 47%. However both host identity verification and hosts total listings count were found to be significant at a 5% level. Being a super host had no significant effect on pricing and will thus be removed in further models.
+
+### Box cox model including host effects factors
+```{r, Host_effects_box}
+model4_box_hosts <-lm(bcPower(price_4_nights,lambda = -0.25)~prop_type_simplified+
+                      number_of_reviews+
+                      review_scores_rating+
+                      room_type+bathrooms+
+                      #bedrooms+
+                      beds+
+                      accommodates+host_is_superhost+
+                        host_total_listings_count+
+                        host_identity_verified, 
+                    data=listings_model)
+
+
+summary(model4_box_hosts)
+plot(model4_box_hosts)
+hist(rstandard(model4_box_hosts))
+bptest(model4_box_hosts)
+vif(model4_box_hosts)
+outlierTest(model4_box_hosts)
+
+```
+The inclusion of host characteristics again improved the adjusted R-squared from ~43% to ~45%.Being a super host as in the log transformed model again has no significant effect on price while host total listings and identity verification proved to be significant. At this point we also note that the box-cox transformation yielded weak adjusted r-squared values across the 4 models considered so far. We thus conclude the log transformed model as being a better transformation and continue our analysis only examining the log transformation of the dependent variable.
+
+## Examining Location Characteristics
+We next choose to examine the effects that different neighborhoods(simplified) and having the location exactly as listed has on price by including  the same factors as in the previous model with the exception of being a 'super host', as this proved insignificant.
+
+```{r, location_effects_log}
+model5_log_loc <-lm(log(price_4_nights)~prop_type_simplified+
+                      number_of_reviews+
+                      review_scores_rating+
+                      room_type+bathrooms+
+                      #bedrooms+ bedrooms had vif>5 so removed and run the model again
+                      beds+
+                      accommodates+
+                        host_total_listings_count+
+                        host_identity_verified+
+                        is_location_exact+neighbourhood_simplified, #adding if property  location is  
+                    data=listings_model)
+
+
+summary(model5_log_loc)
+plot(model5_log_loc)
+hist(rstandard(model5_log_loc))
+vif(model5_log_loc) #check for multi-colinearity issues
+bptest(model5_log_loc)#check for normality
+outlierTest(model5_log_loc)#
 
 
 
 
+```
+The inclusion of location factors again shows improvement in the model(adj r-squared increased from ~48% to ~50%). The only insignificant factor was having an exact location, while the addition of neighborhoods proved significant. The model assumes the Atlantic seaboard neighborhood as its base factor and still assumes apartment as base room type.
+The residuals vs fitted plot again shows improvement in the heteroscedasticity issues, however this model still fails the BP test. Again listing 12543 shows to be influential and should be removed. We examine the plot of residuals which still seems to maintain a normal shape and VIF examination reveals no multi-collinearity issues.
+
+## Adding the effects of having a Cancellation policy and having to pay a Security deposit
+We then moved on to examine the effect that paying cancellation policies and security deposits had on Price for 4 nights.We  add  security_deposit and cancellation_policy to our previous model and removed is_location_ exact as it proved to be an  insignificant factor in the previous model.
 
 
-# Details
+```{r, cancellation_effects_log}
+model6_log_policy <-lm(log(price_4_nights)~
+                      prop_type_simplified+ 
+                      number_of_reviews+
+                      review_scores_rating+
+                      room_type+
+                        bathrooms+
+                      #bedrooms removed as vif>5
+                      beds+
+                      accommodates+
+                        host_total_listings_count+
+                        host_identity_verified+
+                      neighbourhood_simplified+ 
+                      security_deposit+
+                      cancellation_policy
+                      , #adding if property  location is  
+                    data=listings_model)
 
-- Who did you collaborate with: Ruchen Shangguan, Fillipo De Bortoli, Jason Lubner, Marie Cordes, Sammy Chen
-- Approximately how much time did you spend on this problem set: ANSWER HERE
-- What, if anything, gave you the most trouble: ANSWER HERE
+
+summary(model6_log_policy)
+plot(model6_log_policy)
+hist(rstandard(model6_log_policy))
+bptest(model6_log_policy)
+vif(model6_log_policy)
+outlierTest(model6_log_policy)
+
+```
+The inclusion of a cancellation policy and security deposit both seemed to be significant in determining the price as they both have significant p values. The Adjusted R-squared also improved to ~58% (from a previous 50%). This seems to be a fairly good model for predicting price for 4 nights. We examine the residuals and notice great improvement in meeting the underlying assumptions of Multiple- Regression. The fitted vs residual plot is flat and shows a more random nature in comparison to  that of our initial model, however, the small p value of the BP test indicates the null hypothesis of homoscedasticity is rejected and the model still has heteroscedasticity issues. The examination of residuals histogram again reveals a far more normal underlying distribution to what we initially started with and that the log transformation was effective in correcting for non-normality. VIF reveals no multi-collinearity issues and the outlier test again reveals possible observations that should be removed for model improvement.
+
+## Trying to estimate a better model
+While the previous model did prove to be promising, we elected to run an even more extensive model examining all possible factors that we believed could be significant on price. This included factors we had considered previously as well as the introduction of more specific factors such as reviews for value. The original factors were as follows :prop_type_simplified,review_scores_rating,room_type,bathrooms,bedrooms,beds,accommodation,
+host_total_listings_count, host_identity_verified, host_response_rate, neighborhood_simplified,security_deposit, cancellation_policy,instant_bookable, review_scores_cleanliness,
+review_scores_checkin,review_scores_communication,review_scores_location,review_scores_value
+
+
+```{r,full_model}
+
+price_4_nights_full <-lm(log(price_4_nights)~prop_type_simplified+  #examine effects of security deposit and cancellation  policy 
+                      number_of_reviews+
+                      review_scores_rating+
+                      room_type+
+                        bathrooms+
+                      #bedrooms+ vif > 5 so removed
+                      beds+
+                      #accommodates+ vif>5
+                        #host_total_listings_count+ #removed if location is exact as not significant
+                        #host_identity_verified+
+                        #host_response_rate+
+                      neighbourhood_simplified+ 
+                      security_deposit+
+                      cancellation_policy+
+                        #instant_bookable+
+                        #review_scores_cleanliness+  #proved to be insignificant when run
+                        #review_scores_checkin+
+                        #review_scores_communication+
+                        review_scores_location+
+                        review_scores_value
+                      , 
+                    data=listings_model)
+
+
+summary(price_4_nights_full)
+plot(price_4_nights_full)
+hist(rstandard(price_4_nights_full))
+vif(price_4_nights_full)
+outlierTest(price_4_nights_full)
+# check normality of residuals
+
+
+```
+Running this model revealed a very good ajusted R-squared of ~60%, however, we noted multi-collinearity issues with accommodation(size) and bedrooms both having a vif>5, we thus removed them and ran the model again. We  noted that review scores for cleanliness, communication and check in were not significant and that host related factors(host_total_listings_count,host_identity_verified,host_response_rate) and being instantly bookable were not significant either, so we removed these factors and run the regression again. This reduced the value of the Adjusted R-squared to ~55% which is less than the prior model.
+
+
+## Comparison of models
+
+
+```{r, comparison}
+library(huxtable)
+
+kbl(huxreg(model1,model1t,model1_box,model2_log,model2_box,model3_log_BBB,model3_box_BBB,model4_log_hosts,
+model4_box_hosts,model5_log_loc,model6_log_policy,price_4_nights_full))
+#huxreg fits a maximum of 8 observations at a time so we ran two separate ones to compare all models analyzed
+#price_4_nights_full was best at 0.58 A-R^2
+
+```
+
+Comparing all models we see that the highest R squared is given by our second-last model (model6_log_policy), which reads as follows:log(price_4_nights) = 7.483  -1.600e-01 prop_type_simplifiedGuest suite +  3.307e-02 prop_type_simplifiedHouse + 5.112e-02 rop_type_simplifiedOther +  4.281e-01 prop_type_simplifiedVilla -1.934e-03 number_of_reviews + 4.396e-03review_scores_rating + 1.343e-01 room_typeHotel room  -2.683e-01 room_typePrivate room  -5.386e-01room_typeShared room +  1.748e-01 bathrooms  -3.765e-02 beds + 1.179e-01 accommodates + 8.184e-04 host_total_listings_count  -2.000e-01 neighbourhood_simplifiedCape Flats  -2.497e-01 neighbourhood_simplifiedCBD  -2.374e-01 neighbourhood_simplifiedOuter Suburbs -2.053e-01 neighbourhood_simplifiedSommerset  -6.101e-01 neighbourhood_simplifiedSouthern Suburbs + 2.518e-05 security_deposit + 1.576e+00 cancellation_policyluxury_moderate + 2.040e+00 cancellation_policyluxury_super_strict_95 -3.146e-02 cancellation_policymoderate + 1.363e-01 cancellation_policystrict_14_with_grace_period +  5.961e-01 cancellation_policysuper_strict_30  -2.203e-01 cancellation_policysuper_strict_60+ error
+
+Where the model assumes apartment property types, Entire home/apt property type, Atlantic Seaboard neighborhood, and no(N/A)cancellation policy as its base hence all estimates of factor slope either correlated to increases or decreases on these base assumptions.
+ 
+We proceed to run an ANOVA test and find the confidence intervals for our estimated model.The ANOVA reveals that there are significant differences between means of the groups as the p value is less than 0.05
+
+```{r,Anova_conf_I}
+library(kableExtra)
+
+kbl(anova(model6_log_policy))
+kbl(confint(model6_log_policy))
+```
+
+## Running the model on the test data
+
+We attempted to run the test data against the predicted values and analyze the Root Mean Squared Error, however this proved problematic as large portions of the test data contain N/A variables which are obscuring the prediction. We would thus need to clean and rename N/A values across all possible variables.This proves difficult as we can not impute missing values with the mean or median as we risk creating unnecessary bias in our model.
+
+```{r,run_test_data}
+
+rmse_model <- listings_model%>%
+              mutate(predictions=predict(model6_log_policy,.))%>%
+              summarize(sqrt(sum(exp(predictions)-price_4_nights)**2/n()))%>%
+             pull()
+rmse_model
+
+#rmse_test <- listing_test%>%
+              #mutate(predictions=predict(model6_log_policy,.))%>%
+              #summarize(sqrt(sum(exp(predictions)-price_4_nights)**2/n()))%>%
+             #pull()
+#rmse_test
+
+```
+## Prediction of Price
+After a very challenging Applied Statistics with R module, two of us  are planning to visit Cape Town  for 4 nights over reading week, and we want to stay in an Airbnb. Find Airbnb’s that are apartment with a private room, have at least 10 reviews, and an average rating of at least 90. Use your best model to predict the total cost to stay at this Airbnb for 4 nights. Include the appropriate 95% interval with your prediction. Report the point prediction and interval in terms of price_4_nights. We have also elected for a rental that has 2 beds, 1 bathroom and accommodates 2.We are not interested in the number of host listing counts and  would like to not pay a security deposit or cancellation fee as we are students. After consulting our Cape Town expert (Jason)  we would like to stay in the Atlantic Seaboard neighborhood as he advises it has the best views and shops.
+
+```{r,prediction}
+predict = 7.483 -0.001934*(10) + 0.004396*(90) -0.2683*(1)+  0.1748*(1)  -0.03765*(2) + 0.1179*(2) # substituted criteria into equation deleted all values that did not apply or will null value like zero security deposit
+
+Price= exp(predict)
+Price
+
+exp(0.5514)
+
+# SE for confidence intervals is 0.5514
+
+upper= exp(predict+0.5514*1.96)
+lower=exp(predict-0.5514*1.96)
+
+ci= merge(upper,lower)#sorry Kostis for the merge ;)
+names(ci)[1] = "97.5%"
+names(ci)[2] = "2.5%"
+
+kbl(ci) 
+
+
+```
+The model estimates that it will cost $2769.17(Although we believe currencies are actually reported in ZAR but recorded in dollars) with a 95% confidence interval [939.69; 8160.36]. This is a large interval considering the sample size however it is not that unexpected as the inverse log value for standard error is 
+
+# Suggestion for further work
+
+There are some methods that can be implemented to improve the quality of this model. Firstly, the method of obtaining data. There are multitudes of missing values across the entire data set as well as many incorrect observation in variables such as a property that was listed in the USA but appeared on this data set.This brings suspicion on the quality and reliability of data supplied by AirBnB. One significant problem we mentioned was heteroscedasticity, which we didn't manage to remove from our final model. This could have been solved by removing outliers and influential points identified for the model, or examining a different transformation than the ones we did. 
+
+Another issue comes from the fact that the actual property prices are decided by the hosts themselves, not based on any predefined criteria i.e hosts just set the price they want. This can have a large impact on the outcome of this analysis, as things like pre-definition can influence the overall outcome.
+
+Further analysis includes obtaining information on possible influential factors that are not included in this dataset. Such as whether the property is new or old, whether there is an elevator/lift and, as crime is a major issue in South Africa, whether some sort of security is included in a particular listing.
+
+

@@ -58,6 +58,12 @@ disqusShortname = ""
     [[params.navigation.links]]
       name = "COVID-19: Exploration"
       url = "Projects/covid"
+      
+    
+    [[params.navigation.links]]
+      name = "AirBnB Pricing Model"
+      url = "Projects/airbnb"
+      
 
     # Add custom links here by uncommenting code below. To remove links just delete
     # the [[params.navigation.links]] map associated with that link. Copy and paste
@@ -100,7 +106,7 @@ disqusShortname = ""
     [[params.tiles.showcase]]
       title = "Modelling the Salary Structure of a Bank"
       subtitle = "Regression analysis and examination of high earning individuals"
-      image = "Bank.money.jpg"
+      image = "money.jpg"
       url = "Projects/bank"
     
     [[params.tiles.showcase]]
@@ -114,6 +120,9 @@ disqusShortname = ""
       subtitle = "From Data to Model: A Full exploration into the factors affecting CPT price listings "
       image = "AirBnB.png"
       url = "Projects/airbnb"
+      
+      
+      
       
       
 
@@ -132,9 +141,9 @@ disqusShortname = ""
   [params.two]
     enable = true
     title = "About:"
-    subtitle = "This porfolio is to highlight a variety of statistical analysis conducted in R. I am currently reading for the LBS's MAM 2021 program after completing my undergraduate with a BSc in Mathematics,Statistics and Busines From LSE in 2019. I am now hoping to explore career opportunities where Big Data meets Business and Finance but till find a way to create a meaningful difference in areas of the wrold that need it most"
+    subtitle = "This porfolio is to highlight a variety of statistical analysis conducted in R. I am currently reading for the LBS's MAM 2021 program after completing my undergraduate with a BSc in Mathematics,Statistics and Busines From LSE in 2019. I am now hoping to explore career opportunities where Big Data meets Business and Finance, while still finding a way to create a meaningful impact in the areas of the world that need it most."
     buttonText = "Click to download CV"
-    url = "cv"
+    url = "docs/index.pdf"
 
 
   # Contact section
